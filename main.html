@@ -780,8 +780,6 @@
                     doc.text("Authorised signature", 158, footerY + 26);
                 }
                 
-                doc.setFontSize(6.5);
-                doc.text(`📞 ${telInfo} | ${addressLine.substring(0, 55)}`, 10, footerY + 32);
                 
                 // Paid stamp for invoice mode
                 if (currentMode === "invoice" && isPaid && paidLoaded && paidStamp.complete && paidStamp.naturalWidth > 0) {
