@@ -32,7 +32,6 @@
             transition: all 0.2s;
         }
 
-        /* Header with logo and business name side by side */
         .header {
             display: flex;
             align-items: center;
@@ -182,7 +181,6 @@
             letter-spacing: 0.3px;
         }
 
-        /* Bold labels for specific fields */
         .field-group label.bold-label {
             font-weight: 800;
             color: #0a2b3e;
@@ -337,7 +335,6 @@
 </head>
 <body>
 <div class="card">
-    <!-- Header with logo and business name side by side -->
     <div class="header">
         <div class="logo-container">
             <img src="assets/logo.png" alt="Logo" class="logo-img" onerror="this.style.display='none'">
@@ -531,7 +528,6 @@
         updateEmptyMessage();
     }
 
-    // NO DEFAULT ITEMS - container starts completely empty
     updateEmptyMessage();
 
     addItemBtn.addEventListener("click", () => {
@@ -565,137 +561,114 @@
         signatureImg.src = "assets/signature.png";
         
         let imagesLoaded = 0;
-        let logoAvailable = false;
-        let paidAvailable = false;
-        let signatureAvailable = false;
+        let logoLoaded = false;
+        let paidLoaded = false;
+        let signatureLoaded = false;
         
-        function imageLoadHandler() {
+        function checkAllLoaded() {
             imagesLoaded++;
             if (imagesLoaded === 3) {
-                buildFinalPDF();
+                buildPDF();
             }
         }
         
-        logoImg.onload = () => { logoAvailable = true; imageLoadHandler(); };
-        logoImg.onerror = () => { logoAvailable = false; imageLoadHandler(); };
-        paidStamp.onload = () => { paidAvailable = true; imageLoadHandler(); };
-        paidStamp.onerror = () => { paidAvailable = false; imageLoadHandler(); };
-        signatureImg.onload = () => { signatureAvailable = true; imageLoadHandler(); };
-        signatureImg.onerror = () => { signatureAvailable = false; imageLoadHandler(); };
+        logoImg.onload = () => { logoLoaded = true; checkAllLoaded(); };
+        logoImg.onerror = () => { logoLoaded = false; checkAllLoaded(); };
+        paidStamp.onload = () => { paidLoaded = true; checkAllLoaded(); };
+        paidStamp.onerror = () => { paidLoaded = false; checkAllLoaded(); };
+        signatureImg.onload = () => { signatureLoaded = true; checkAllLoaded(); };
+        signatureImg.onerror = () => { signatureLoaded = false; checkAllLoaded(); };
         
         setTimeout(() => {
             if (imagesLoaded < 3) {
                 imagesLoaded = 3;
-                buildFinalPDF();
+                buildPDF();
             }
-        }, 600);
+        }, 800);
         
-        let yCursor = 32;
-        let grandTotal = 0;
-        
-        function checkPageOverflow() {
-            if (yCursor > 270) {
-                doc.addPage();
-                yCursor = 15;
-                doc.setFontSize(8);
-                doc.text("Description", 8, yCursor);
-                doc.text("Qty", 120, yCursor);
-                doc.text("Price (R)", 145, yCursor);
-                doc.text("Total (R)", 175, yCursor);
-                yCursor += 2;
-                doc.line(8, yCursor, 202, yCursor);
-                yCursor += 4;
-            }
-        }
-        
-        function addItemRow(description, qty, unitPrice) {
-            if (!qty || qty === 0) return;
-            let total = qty * unitPrice;
-            grandTotal += total;
-            checkPageOverflow();
-            doc.setFontSize(7.5);
-            let shortDesc = description.length > 45 ? description.substring(0, 42) + "..." : description;
-            doc.text(shortDesc, 8, yCursor);
-            doc.text(qty.toString(), 120, yCursor);
-            doc.text("R" + unitPrice.toFixed(2), 145, yCursor);
-            doc.text("R" + total.toFixed(2), 175, yCursor);
-            yCursor += 4;
-        }
-        
-        function buildFinalPDF() {
+        function buildPDF() {
             try {
-                // Logo on the left
-                if (logoAvailable && logoImg.complete && logoImg.naturalWidth > 0) {
-                    doc.addImage(logoImg, "PNG", 8, 8, 22, 18);
+                // === HEADER WITH LOGO ===
+                // Add logo at top left
+                if (logoLoaded && logoImg.complete && logoImg.naturalWidth > 0) {
+                    doc.addImage(logoImg, "PNG", 10, 8, 24, 20);
+                    doc.setFontSize(12);
+                    doc.setFont(undefined, "bold");
+                    doc.text(businessName, 40, 15);
+                    doc.setFontSize(7);
+                    doc.setFont(undefined, "normal");
+                    doc.text(telInfo, 40, 21);
+                    doc.text(addressLine, 40, 26);
+                } else {
+                    doc.setFontSize(14);
+                    doc.setFont(undefined, "bold");
+                    doc.text(businessName, 15, 15);
+                    doc.setFontSize(7);
+                    doc.setFont(undefined, "normal");
+                    doc.text(telInfo, 15, 22);
+                    doc.text(addressLine, 15, 27);
                 }
                 
-                // Business name and details next to logo
-                doc.setFontSize(13);
-                doc.setFont(undefined, "bold");
-                doc.text(businessName, 35, 13);
-                doc.setFontSize(7);
-                doc.setFont(undefined, "normal");
-                doc.text(telInfo, 35, 19);
-                doc.text(addressLine, 35, 24);
-                
+                // Document title and date on the right
                 doc.setFontSize(11);
                 doc.setFont(undefined, "bold");
-                doc.text(docTitle, 155, 13);
+                doc.text(docTitle, 155, 12);
                 doc.setFontSize(7);
                 doc.setFont(undefined, "normal");
-                doc.text(`Date: ${displayDate}`, 155, 20);
+                doc.text(`Date: ${displayDate}`, 155, 19);
                 
-                yCursor = 32;
-                doc.line(8, yCursor, 202, yCursor);
-                yCursor += 5;
+                let yPos = 38;
+                doc.line(10, yPos, 200, yPos);
+                yPos += 6;
                 
-                // Client info section with bold labels
+                // Client information section with bold labels
                 doc.setFontSize(8.5);
                 doc.setFont(undefined, "bold");
-                doc.text("CLIENT:", 8, yCursor);
+                doc.text("CLIENT:", 10, yPos);
                 doc.setFont(undefined, "normal");
-                doc.text(clientName, 45, yCursor);
-                yCursor += 5;
+                doc.text(clientName, 45, yPos);
+                yPos += 5;
                 
                 doc.setFont(undefined, "bold");
-                doc.text("SERVICE ADDRESS:", 8, yCursor);
+                doc.text("SERVICE ADDRESS:", 10, yPos);
                 doc.setFont(undefined, "normal");
-                const splitAddress = doc.splitTextToSize(workAddr, 130);
-                doc.text(splitAddress, 45, yCursor);
-                yCursor += (splitAddress.length * 4.5);
+                const addrLines = doc.splitTextToSize(workAddr, 135);
+                doc.text(addrLines, 45, yPos);
+                yPos += (addrLines.length * 4.5);
                 
                 doc.setFont(undefined, "bold");
-                doc.text("VEHICLE:", 8, yCursor);
+                doc.text("VEHICLE:", 10, yPos);
                 doc.setFont(undefined, "normal");
-                doc.text(vehicle, 45, yCursor);
-                yCursor += 5;
+                doc.text(vehicle, 45, yPos);
+                yPos += 5;
                 
                 if (faultDesc !== "—") {
                     doc.setFont(undefined, "bold");
-                    doc.text("FAULT DESCRIPTION:", 8, yCursor);
+                    doc.text("FAULT DESCRIPTION:", 10, yPos);
                     doc.setFont(undefined, "normal");
-                    const splitFault = doc.splitTextToSize(faultDesc, 130);
-                    doc.text(splitFault, 45, yCursor);
-                    yCursor += (splitFault.length * 4.5);
+                    const faultLines = doc.splitTextToSize(faultDesc, 135);
+                    doc.text(faultLines, 45, yPos);
+                    yPos += (faultLines.length * 4.5);
                 }
                 
-                yCursor += 3;
-                doc.line(8, yCursor, 202, yCursor);
-                yCursor += 5;
+                yPos += 4;
+                doc.line(10, yPos, 200, yPos);
+                yPos += 5;
                 
                 // Table headers
                 doc.setFont(undefined, "bold");
-                doc.text("DESCRIPTION", 8, yCursor);
-                doc.text("QTY", 120, yCursor);
-                doc.text("PRICE (R)", 145, yCursor);
-                doc.text("TOTAL (R)", 175, yCursor);
+                doc.text("DESCRIPTION", 10, yPos);
+                doc.text("QTY", 120, yPos);
+                doc.text("PRICE (R)", 145, yPos);
+                doc.text("TOTAL (R)", 175, yPos);
                 doc.setFont(undefined, "normal");
-                yCursor += 2;
-                doc.line(8, yCursor, 202, yCursor);
-                yCursor += 5;
+                yPos += 2;
+                doc.line(10, yPos, 200, yPos);
+                yPos += 5;
                 
-                grandTotal = 0;
+                let grandTotal = 0;
                 
+                // Process manual items
                 const allRows = document.querySelectorAll("#manualItemsContainer .manual-item-row");
                 for (let row of allRows) {
                     const descElem = row.querySelector(".manual-name");
@@ -707,111 +680,145 @@
                     let price = priceElem ? parseFloat(priceElem.value) : 0;
                     if (isNaN(qty)) qty = 0;
                     if (isNaN(price)) price = 0;
-                    if (qty > 0 && price >= 0) {
-                        addItemRow(desc, qty, price);
+                    if (qty > 0 && price > 0) {
+                        let total = qty * price;
+                        grandTotal += total;
+                        
+                        if (yPos > 270) {
+                            doc.addPage();
+                            yPos = 20;
+                            doc.setFontSize(8);
+                            doc.setFont(undefined, "bold");
+                            doc.text("DESCRIPTION", 10, yPos);
+                            doc.text("QTY", 120, yPos);
+                            doc.text("PRICE (R)", 145, yPos);
+                            doc.text("TOTAL (R)", 175, yPos);
+                            doc.setFont(undefined, "normal");
+                            yPos += 2;
+                            doc.line(10, yPos, 200, yPos);
+                            yPos += 5;
+                        }
+                        
+                        doc.setFontSize(7.5);
+                        let shortDesc = desc.length > 45 ? desc.substring(0, 42) + "..." : desc;
+                        doc.text(shortDesc, 10, yPos);
+                        doc.text(qty.toString(), 120, yPos);
+                        doc.text("R" + price.toFixed(2), 145, yPos);
+                        doc.text("R" + total.toFixed(2), 175, yPos);
+                        yPos += 4;
                     }
                 }
                 
                 let extra = parseFloat(document.getElementById("extraPayment").value) || 0;
                 let discount = parseFloat(document.getElementById("discount").value) || 0;
+                
                 if (extra > 0) {
-                    addItemRow("➕ Extra charge / adjustment", 1, extra);
-                }
-                if (discount > 0) {
-                    checkPageOverflow();
+                    grandTotal += extra;
+                    if (yPos > 270) {
+                        doc.addPage();
+                        yPos = 20;
+                    }
                     doc.setFontSize(7.5);
-                    doc.text("Discount (applied)", 8, yCursor);
-                    doc.text("-", 120, yCursor);
-                    doc.text("R" + discount.toFixed(2), 175, yCursor);
-                    yCursor += 4;
-                    grandTotal -= discount;
+                    doc.text("Extra charge / adjustment", 10, yPos);
+                    doc.text("1", 120, yPos);
+                    doc.text("R" + extra.toFixed(2), 145, yPos);
+                    doc.text("R" + extra.toFixed(2), 175, yPos);
+                    yPos += 4;
                 }
                 
-                doc.line(145, yCursor, 202, yCursor);
-                yCursor += 4;
+                if (discount > 0) {
+                    grandTotal -= discount;
+                    if (yPos > 270) {
+                        doc.addPage();
+                        yPos = 20;
+                    }
+                    doc.setFontSize(7.5);
+                    doc.text("Discount applied", 10, yPos);
+                    doc.text("-", 120, yPos);
+                    doc.text("R" + discount.toFixed(2), 175, yPos);
+                    yPos += 4;
+                }
+                
+                doc.line(145, yPos, 200, yPos);
+                yPos += 4;
                 doc.setFont(undefined, "bold");
                 doc.setFontSize(10);
-                let totalText = (currentMode === "invoice" && isPaid) ? `TOTAL (PAID): R${grandTotal.toFixed(2)}` : `TOTAL: R${grandTotal.toFixed(2)}`;
-                doc.text(totalText, 145, yCursor);
+                let totalDisplay = (currentMode === "invoice" && isPaid) ? `TOTAL (PAID): R${grandTotal.toFixed(2)}` : `TOTAL: R${grandTotal.toFixed(2)}`;
+                doc.text(totalDisplay, 150, yPos);
                 doc.setFont(undefined, "normal");
-                yCursor += 8;
+                yPos += 10;
                 
+                // Payment terms and signature section
                 let pageHeight = doc.internal.pageSize.height;
-                let termsY = pageHeight - 38;
-                if (yCursor + 20 > pageHeight) {
+                let footerY = pageHeight - 38;
+                
+                if (yPos + 25 > pageHeight) {
                     doc.addPage();
-                    termsY = 20;
+                    footerY = 25;
                 } else {
-                    termsY = Math.max(yCursor + 8, pageHeight - 38);
+                    footerY = Math.max(yPos + 5, pageHeight - 42);
                 }
                 
                 doc.setFontSize(8);
                 doc.setFont(undefined, "bold");
-                doc.text("PAYMENT TERMS", 8, termsY);
+                doc.text("PAYMENT TERMS", 10, footerY);
                 doc.setFont(undefined, "normal");
-                doc.text(paymentNote, 8, termsY + 4);
-                doc.text("No bank deposit required – settle upon job completion.", 8, termsY + 8);
-                doc.text("Thank you for trusting Salman Auto Electrician.", 8, termsY + 12);
+                doc.text(paymentNote, 10, footerY + 4);
+                doc.text("No bank deposit required – settle upon job completion.", 10, footerY + 8);
+                doc.text("Thank you for trusting Salman Auto Electrician.", 10, footerY + 12);
                 
-                if (signatureAvailable && signatureImg.complete && signatureImg.naturalWidth > 0) {
+                // Signature
+                if (signatureLoaded && signatureImg.complete && signatureImg.naturalWidth > 0) {
                     try {
-                        doc.addImage(signatureImg, "PNG", 150, termsY + 16, 35, 10);
+                        doc.addImage(signatureImg, "PNG", 150, footerY + 14, 35, 10);
                     } catch(e) {}
                     doc.setFontSize(6);
-                    doc.text("Authorised signature", 158, termsY + 28);
+                    doc.text("Authorised signature", 158, footerY + 27);
                 } else {
-                    doc.line(150, termsY + 22, 200, termsY + 22);
+                    doc.line(150, footerY + 22, 200, footerY + 22);
                     doc.setFontSize(6);
-                    doc.text("Authorised signature", 158, termsY + 26);
+                    doc.text("Authorised signature", 158, footerY + 26);
                 }
                 
                 doc.setFontSize(6.5);
-                doc.text(`📞 ${telInfo} | ${addressLine.substring(0, 55)}`, 8, termsY + 32);
+                doc.text(`📞 ${telInfo} | ${addressLine.substring(0, 55)}`, 10, footerY + 32);
                 
-                if (currentMode === "invoice" && isPaid && paidAvailable && paidStamp.complete && paidStamp.naturalWidth > 0) {
+                // Paid stamp for invoice mode
+                if (currentMode === "invoice" && isPaid && paidLoaded && paidStamp.complete && paidStamp.naturalWidth > 0) {
                     try {
-                        doc.addImage(paidStamp, "PNG", 140, termsY - 6, 30, 12);
+                        doc.addImage(paidStamp, "PNG", 140, footerY - 8, 32, 14);
                     } catch(e) {}
                 } else if (currentMode === "invoice" && isPaid) {
                     doc.setFontSize(8);
                     doc.setTextColor(40, 100, 40);
-                    doc.text("✓ PAID IN FULL", 150, termsY);
-                    doc.setTextColor(0,0,0);
+                    doc.text("✓ PAID IN FULL", 152, footerY - 2);
+                    doc.setTextColor(0, 0, 0);
                 }
                 
                 doc.setFontSize(6);
-                doc.text("Salman Auto Electrician – Quality auto electrical repairs. Cash on completion.", 8, pageHeight - 6);
+                doc.text("Salman Auto Electrician – Quality auto electrical repairs. Cash on completion.", 10, pageHeight - 6);
                 
-                const pdfBlob = doc.output("blob", { compress: true });
-                const fileSafeName = clientName.replace(/\s+/g, '_').substring(0, 20);
-                const fileName = `${currentMode === "invoice" ? "Invoice" : "Quotation"}_${fileSafeName}_${displayDate.replace(/\//g, '-')}.pdf`;
+                // Save and share
+                const pdfBlob = doc.output("blob");
+                const fileName = `${currentMode === "invoice" ? "Invoice" : "Quotation"}_${clientName.replace(/\s+/g, '_')}_${displayDate.replace(/\//g, '-')}.pdf`;
                 const pdfUrl = URL.createObjectURL(pdfBlob);
-                const downloadLink = document.createElement("a");
-                downloadLink.href = pdfUrl;
-                downloadLink.download = fileName;
-                downloadLink.click();
+                const link = document.createElement("a");
+                link.href = pdfUrl;
+                link.download = fileName;
+                link.click();
                 
-                const fileObj = new File([pdfBlob], fileName, { type: "application/pdf" });
-                if (navigator.canShare && navigator.canShare({ files: [fileObj] })) {
+                if (navigator.canShare && navigator.canShare({ files: [new File([pdfBlob], fileName, { type: "application/pdf" })] })) {
                     navigator.share({
                         title: docTitle + " from Salman Auto Electrician",
-                        files: [fileObj]
+                        files: [new File([pdfBlob], fileName, { type: "application/pdf" })]
                     }).catch(() => {});
                 }
                 URL.revokeObjectURL(pdfUrl);
-            } catch (err) {
-                console.warn("PDF error", err);
-                alert("Could not generate PDF, please check console.");
+                
+            } catch(err) {
+                console.error("PDF Error:", err);
+                alert("Error generating PDF. Please check that all images exist in the assets folder.");
             }
-        }
-        
-        if (imagesLoaded === 0) {
-            setTimeout(() => {
-                if (imagesLoaded < 3) {
-                    imagesLoaded = 3;
-                    buildFinalPDF();
-                }
-            }, 400);
         }
     }
     
