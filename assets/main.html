@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Salman Auto Electrician · Invoice & Quotation</title>
+    <!-- jsPDF library for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background: #eef2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        /* main card container */
+        .card {
+            max-width: 1000px;
+            width: 100%;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+            padding: 1.8rem;
+            transition: all 0.2s;
+        }
+
+        h1 {
+            font-size: 1.9rem;
+            font-weight: 800;
+            letter-spacing: -0.4px;
+            color: #0a2b3e;
+            text-align: center;
+            margin-bottom: 0.2rem;
+        }
+
+        .tagline {
+            text-align: center;
+            color: #2c6e6e;
+            font-size: 0.85rem;
+            font-weight: 500;
+            background: #eaf8f0;
+            display: inline-block;
+            width: auto;
+            margin: 0 auto 12px;
+            padding: 4px 18px;
+            border-radius: 60px;
+        }
+
+        .mode-bar {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 0.6rem 0 0.2rem;
+        }
+
+        .mode-btn {
+            background: none;
+            border: 2px solid #cbdbe2;
+            padding: 0.45rem 1.8rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1f3e48;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .mode-btn.active {
+            background: #0a2b3e;
+            border-color: #0a2b3e;
+            color: white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .doc-badge {
+            text-align: center;
+            font-size: 1rem;
+            background: #eef2fa;
+            padding: 5px 28px;
+            border-radius: 40px;
+            display: inline-block;
+            margin: 8px auto 5px;
+            font-weight: 600;
+            color: #1e4a5f;
+        }
+
+        /* paid toggle (only visible for invoice mode) */
+        .paid-toggle-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin: 8px auto 16px;
+            background: #f9fbfd;
+            padding: 6px 18px;
+            border-radius: 60px;
+            width: fit-content;
+            border: 1px solid #dee4ed;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 26px;
+            background: #cbd5e1;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid #a0b3c2;
+        }
+
+        .toggle-switch.active {
+            background: #117f6f;
+            border-color: #0e5e52;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            height: 22px;
+            width: 22px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .toggle-switch.active .toggle-slider {
+            left: 28px;
+        }
+
+        .paid-label {
+            font-weight: 700;
+            color: #134b44;
+            font-size: 0.9rem;
+        }
+
+        /* form layout */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem 1.5rem;
+        }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .field-group label {
+            font-weight: 700;
+            color: #1c4b5e;
+            font-size: 0.78rem;
+            letter-spacing: 0.3px;
+        }
+
+        input, select {
+            padding: 8px 12px;
+            border: 1.5px solid #dce3ec;
+            border-radius: 16px;
+            font-size: 0.9rem;
+            background: #fff;
+            transition: 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #2c7a6e;
+            box-shadow: 0 0 0 3px rgba(17,127,111,0.15);
+        }
+
+        .section-title {
+            grid-column: span 2;
+            font-weight: 800;
+            color: #0f3b42;
+            margin-top: 12px;
+            border-bottom: 2px solid #cbdde8;
+            padding-bottom: 6px;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .generate-btn {
+            grid-column: span 2;
+            background: #0a2b3e;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            border-radius: 60px;
+            margin-top: 18px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+
+        .generate-btn:hover {
+            background: #144d5c;
+            transform: scale(0.99);
+        }
+
+        .manual-add-btn {
+            grid-column: span 2;
+            background: #247a6b;
+            color: white;
+            border: none;
+            padding: 10px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 5px;
+        }
+
+        .manual-add-btn:hover {
+            background: #1a6356;
+        }
+
+        .manual-item-row {
+            display: grid;
+            grid-template-columns: 2.5fr 1fr 1fr 0.4fr;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .manual-remove-btn {
+            background: #c72a2f;
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 32px;
+            padding: 8px 0;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: 0.1s;
+        }
+
+        .manual-remove-btn:hover {
+            background: #a51e22;
+        }
+
+        .note {
+            grid-column: span 2;
+            font-size: 0.7rem;
+            color: #3f6b6b;
+            text-align: center;
+            margin-top: 14px;
+            background: #f4f9fe;
+            padding: 8px;
+            border-radius: 40px;
+        }
+
+        @media (max-width: 720px) {
+            .card {
+                padding: 1.2rem;
+            }
+            .form-grid, .section-title, .generate-btn, .manual-add-btn, .note {
+                grid-column: span 1 !important;
+            }
+            .manual-item-row {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>⚡ SALMAN AUTO ELECTRICIAN</h1>
+    <div style="text-align: center; margin-top: -4px;">
+        <span class="tagline">Auto Electrical Diagnostics & Repairs</span>
+    </div>
+    <div class="mode-bar">
+        <button class="mode-btn" id="invoiceModeBtn">📄 INVOICE</button>
+        <button class="mode-btn" id="quotationModeBtn">📋 QUOTATION</button>
+    </div>
+    <div style="text-align:center;">
+        <span class="doc-badge" id="documentTypeLabel">Invoice</span>
+    </div>
+
+    <!-- PAID toggle (invoice only) -->
+    <div id="paidToggleWrapper" class="paid-toggle-container">
+        <span class="paid-label">✓ Mark as PAID (invoice)</span>
+        <div id="paidToggleSwitch" class="toggle-switch">
+            <div class="toggle-slider"></div>
+        </div>
+    </div>
+
+    <div class="form-grid">
+        <div class="field-group">
+            <label>👤 Client Name</label>
+            <input type="text" id="clientName" placeholder="Full name / Company">
+        </div>
+        <div class="field-group">
+            <label>📅 Document Date</label>
+            <input type="date" id="documentDate">
+        </div>
+        <div class="field-group" style="grid-column: span 2;">
+            <label>📍 Service / Work Address</label>
+            <input type="text" id="workAddress" placeholder="Workshop location or customer address">
+        </div>
+        <div class="field-group" style="grid-column: span 2;">
+            <label>🚗 Vehicle / Job Reference (optional)</label>
+            <input type="text" id="vehicleRef" placeholder="e.g., Toyota Hilux / Alternator issue">
+        </div>
+
+        <!-- ✏️ CUSTOM ITEMS SECTION (MANUAL ONLY) -->
+        <div class="section-title">🔧 LABOUR, PARTS & SERVICES</div>
+        <div id="manualItemsContainer" style="grid-column: span 2;"></div>
+        <button type="button" class="manual-add-btn" id="addItemBtn">+ Add Custom Item (part / labour / diagnostic)</button>
+
+        <!-- Adjustments (extra / discount) -->
+        <div class="section-title">💰 ADJUSTMENTS</div>
+        <div class="field-group">
+            <label>➕ Extra charge (e.g., call-out fee)</label>
+            <input type="number" id="extraPayment" min="0" step="0.01" placeholder="0.00">
+        </div>
+        <div class="field-group">
+            <label>➖ Discount (R)</label>
+            <input type="number" id="discount" min="0" step="0.01" placeholder="0.00">
+        </div>
+
+        <button class="generate-btn" id="generatePDFBtn">📑 Generate & Share Document</button>
+        <div class="note">
+            ✅ Payment terms: Cash upon completion of work. Thank you for choosing Salman Auto Electrician.
+        </div>
+    </div>
+</div>
+
+<script>
+    // ---------- SESSION AUTHENTICATION GUARD (from original pattern) ----------
+    if (sessionStorage.getItem("authenticated") !== "true") {
+        window.location.href = "./index.html";
+    }
+
+    let idleTimer;
+    function resetIdleTimer() {
+        clearTimeout(idleTimer);
+        idleTimer = setTimeout(() => {
+            sessionStorage.removeItem("authenticated");
+            window.location.href = "./index.html";
+        }, 300000); // 5 minutes
+    }
+    window.addEventListener("mousemove", resetIdleTimer);
+    window.addEventListener("keypress", resetIdleTimer);
+    window.addEventListener("click", resetIdleTimer);
+    window.addEventListener("scroll", resetIdleTimer);
+    resetIdleTimer();
+
+    window.addEventListener("beforeunload", () => {
+        sessionStorage.removeItem("authenticated");
+    });
+
+    // ---------- GLOBALS ----------
+    let currentMode = "invoice";      // 'invoice' or 'quotation'
+    let isPaid = false;               // only for invoice mode
+
+    // DOM elements
+    const invoiceModeBtn = document.getElementById("invoiceModeBtn");
+    const quotationModeBtn = document.getElementById("quotationModeBtn");
+    const docTypeSpan = document.getElementById("documentTypeLabel");
+    const paidWrapper = document.getElementById("paidToggleWrapper");
+    const paidToggleSwitch = document.getElementById("paidToggleSwitch");
+    const manualContainer = document.getElementById("manualItemsContainer");
+    const addItemBtn = document.getElementById("addItemBtn");
+
+    // ----- Helper: Date default today -----
+    const todayStr = new Date().toISOString().split('T')[0];
+    document.getElementById("documentDate").value = todayStr;
+
+    // ----- toggle PAID UI -----
+    function updatePaidToggleUI() {
+        if (currentMode === "invoice") {
+            paidWrapper.style.display = "flex";
+            if (isPaid) {
+                paidToggleSwitch.classList.add("active");
+            } else {
+                paidToggleSwitch.classList.remove("active");
+            }
+        } else {
+            paidWrapper.style.display = "none";
+            isPaid = false;
+            paidToggleSwitch.classList.remove("active");
+        }
+    }
+
+    function togglePaidStatus() {
+        if (currentMode !== "invoice") return;
+        isPaid = !isPaid;
+        updatePaidToggleUI();
+    }
+    paidToggleSwitch.addEventListener("click", togglePaidStatus);
+
+    // ----- mode switcher -----
+    function setMode(mode) {
+        currentMode = mode;
+        if (mode === "invoice") {
+            invoiceModeBtn.classList.add("active");
+            quotationModeBtn.classList.remove("active");
+            docTypeSpan.innerText = "INVOICE";
+        } else {
+            quotationModeBtn.classList.add("active");
+            invoiceModeBtn.classList.remove("active");
+            docTypeSpan.innerText = "QUOTATION";
+        }
+        updatePaidToggleUI();
+    }
+
+    invoiceModeBtn.addEventListener("click", () => setMode("invoice"));
+    quotationModeBtn.addEventListener("click", () => setMode("quotation"));
+    setMode("invoice");   // default
+
+    // ----- MANUAL ITEMS MANAGEMENT (dynamic, no preset products)-----
+    let manualItemCounter = 0;
+
+    function createManualRow(itemName = "", quantity = "", unitPrice = "") {
+        const rowDiv = document.createElement("div");
+        rowDiv.className = "manual-item-row";
+        rowDiv.innerHTML = `
+            <input type="text" class="manual-name" placeholder="Description (e.g., Alternator repair, Starter motor)" value="${escapeHtml(itemName)}">
+            <input type="number" class="manual-qty" min="0" step="1" placeholder="Qty" value="${quantity}">
+            <input type="number" class="manual-price" min="0" step="0.01" placeholder="Unit price (R)" value="${unitPrice}">
+            <button type="button" class="manual-remove-btn">✖ Remove</button>
+        `;
+        const removeBtn = rowDiv.querySelector(".manual-remove-btn");
+        removeBtn.addEventListener("click", () => {
+            rowDiv.remove();
+        });
+        return rowDiv;
+    }
+
+    function addManualItem(optName = "", optQty = "", optPrice = "") {
+        const newRow = createManualRow(optName, optQty, optPrice);
+        manualContainer.appendChild(newRow);
+    }
+
+    // small helper to escape HTML for pre-filled values
+    function escapeHtml(str) {
+        if (!str) return "";
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // add initial rows to show example items (auto electrician themed)
+    addManualItem("Alternator diagnostic & repair", "1", "850.00");
+    addManualItem("Starter motor replacement", "1", "1250.00");
+    addManualItem("Battery testing & electrical check", "1", "350.00");
+
+    // add new empty row when clicking add button
+    addItemBtn.addEventListener("click", () => {
+        addManualItem("", "", "");
+    });
+
+    // --------------------------------------------------------------
+    // PDF GENERATION with NEW business info (Salman Auto Electrician)
+    // --------------------------------------------------------------
+    async function generatePDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
+
+        // ----- UPDATED BUSINESS DETAILS -----
+        const businessName = "SALMAN AUTO ELECTRICIAN";
+        const telInfo = "Tel: 062 210 4835";
+        const addressLine = "No. 5, Henry Nxumalo Street, Johannesburg Central (Close to Shell Garage)";
+        const paymentNote = "Cash upon completion of work";   // banking details replaced
+        
+        // document client & meta
+        let clientName = document.getElementById("clientName").value.trim();
+        if (clientName === "") clientName = "Walk-in Client";
+        let workAddr = document.getElementById("workAddress").value.trim() || "Workshop address as above";
+        let vehicleRef = document.getElementById("vehicleRef").value.trim() || "—";
+        let rawDate = document.getElementById("documentDate").value;
+        let displayDate = rawDate ? new Date(rawDate).toLocaleDateString("en-ZA") : new Date().toLocaleDateString("en-ZA");
+        let docTitle = currentMode === "invoice" ? "TAX INVOICE" : "QUOTATION";
+        
+        // Prepare images for logo & optional paid stamp
+        const logoImg = new Image();
+        const paidStamp = new Image();
+        // We'll keep assets path optional: but we use dummy safe loading
+        logoImg.src = "assets/logo.jpeg";
+        paidStamp.src = "assets/paid.png";
+        // signature removed as not needed but keep fallback style
+        let imagesLoaded = 0;
+        let logoAvailable = false;
+        let paidAvailable = false;
+        
+        function imageLoadHandler() {
+            imagesLoaded++;
+            if (imagesLoaded === 2) {
+                buildFinalPDF();
+            }
+        }
+        logoImg.onload = () => { logoAvailable = true; imageLoadHandler(); };
+        logoImg.onerror = () => { logoAvailable = false; imageLoadHandler(); };
+        paidStamp.onload = () => { paidAvailable = true; imageLoadHandler(); };
+        paidStamp.onerror = () => { paidAvailable = false; imageLoadHandler(); };
+        
+        // fallback in case images take too long
+        setTimeout(() => {
+            if (imagesLoaded < 2) {
+                imagesLoaded = 2;
+                buildFinalPDF();
+            }
+        }, 600);
+        
+        // helper functions for layout
+        let yCursor = 32;
+        let grandTotal = 0;
+        
+        function checkPageOverflow() {
+            if (yCursor > 270) {
+                doc.addPage();
+                yCursor = 15;
+                doc.setFontSize(8);
+                doc.text("Description", 8, yCursor);
+                doc.text("Qty", 120, yCursor);
+                doc.text("Price (R)", 145, yCursor);
+                doc.text("Total (R)", 175, yCursor);
+                yCursor += 2;
+                doc.line(8, yCursor, 202, yCursor);
+                yCursor += 4;
+            }
+        }
+        
+        function addItemRow(description, qty, unitPrice) {
+            if (!qty || qty === 0) return;
+            let total = qty * unitPrice;
+            grandTotal += total;
+            checkPageOverflow();
+            doc.setFontSize(7.5);
+            let shortDesc = description.length > 45 ? description.substring(0, 42) + "..." : description;
+            doc.text(shortDesc, 8, yCursor);
+            doc.text(qty.toString(), 120, yCursor);
+            doc.text("R" + unitPrice.toFixed(2), 145, yCursor);
+            doc.text("R" + total.toFixed(2), 175, yCursor);
+            yCursor += 4;
+        }
+        
+        function buildFinalPDF() {
+            try {
+                // --- Header with logo if exists
+                if (logoAvailable && logoImg.complete && logoImg.naturalWidth > 0) {
+                    doc.addImage(logoImg, "JPEG", 8, 6, 22, 16);
+                    doc.setFontSize(12);
+                    doc.setFont(undefined, "bold");
+                    doc.text(businessName, 35, 12);
+                    doc.setFontSize(8);
+                    doc.setFont(undefined, "normal");
+                    doc.text(telInfo, 35, 18);
+                    doc.text(addressLine, 35, 23);
+                } else {
+                    doc.setFontSize(14);
+                    doc.setFont(undefined, "bold");
+                    doc.text(businessName, 15, 14);
+                    doc.setFontSize(8);
+                    doc.setFont(undefined, "normal");
+                    doc.text(telInfo, 15, 20);
+                    doc.text(addressLine, 15, 25);
+                }
+                // right side title & date
+                doc.setFontSize(12);
+                doc.setFont(undefined, "bold");
+                doc.text(docTitle, 155, 12);
+                doc.setFontSize(8);
+                doc.setFont(undefined, "normal");
+                doc.text(`Date: ${displayDate}`, 155, 19);
+                
+                let headerBase = logoAvailable ? 30 : 33;
+                yCursor = headerBase;
+                doc.line(8, yCursor, 202, yCursor);
+                yCursor += 5;
+                
+                doc.setFontSize(8);
+                doc.text("Client:", 8, yCursor);
+                doc.text(clientName, 30, yCursor);
+                yCursor += 4;
+                doc.text("Service Address:", 8, yCursor);
+                doc.text(workAddr, 30, yCursor);
+                yCursor += 4;
+                doc.text("Vehicle / Job:", 8, yCursor);
+                doc.text(vehicleRef, 30, yCursor);
+                yCursor += 6;
+                doc.line(8, yCursor, 202, yCursor);
+                yCursor += 4;
+                
+                // table headers
+                doc.setFont(undefined, "bold");
+                doc.text("Description", 8, yCursor);
+                doc.text("Qty", 120, yCursor);
+                doc.text("Price (R)", 145, yCursor);
+                doc.text("Total (R)", 175, yCursor);
+                doc.setFont(undefined, "normal");
+                yCursor += 2;
+                doc.line(8, yCursor, 202, yCursor);
+                yCursor += 4;
+                
+                grandTotal = 0;
+                
+                // ---- COLLECT MANUAL ITEMS ----
+                const allRows = document.querySelectorAll("#manualItemsContainer .manual-item-row");
+                for (let row of allRows) {
+                    const descElem = row.querySelector(".manual-name");
+                    const qtyElem = row.querySelector(".manual-qty");
+                    const priceElem = row.querySelector(".manual-price");
+                    let desc = descElem ? descElem.value.trim() : "";
+                    if (desc === "") desc = "Unnamed service";
+                    let qty = qtyElem ? parseInt(qtyElem.value) : 0;
+                    let price = priceElem ? parseFloat(priceElem.value) : 0;
+                    if (isNaN(qty)) qty = 0;
+                    if (isNaN(price)) price = 0;
+                    if (qty > 0 && price >= 0) {
+                        addItemRow(desc, qty, price);
+                    }
+                }
+                
+                // Extra payment and discount
+                let extra = parseFloat(document.getElementById("extraPayment").value) || 0;
+                let discount = parseFloat(document.getElementById("discount").value) || 0;
+                if (extra > 0) {
+                    addItemRow("➕ Extra charge / adjustment", 1, extra);
+                }
+                if (discount > 0) {
+                    // discount row as negative addition
+                    checkPageOverflow();
+                    doc.setFontSize(7.5);
+                    doc.text("Discount (applied)", 8, yCursor);
+                    doc.text("-", 120, yCursor);
+                    doc.text("R" + discount.toFixed(2), 175, yCursor);
+                    yCursor += 4;
+                    grandTotal -= discount;
+                }
+                
+                // Total line
+                doc.line(145, yCursor, 202, yCursor);
+                yCursor += 4;
+                doc.setFont(undefined, "bold");
+                doc.setFontSize(10);
+                let totalText = (currentMode === "invoice" && isPaid) ? `TOTAL (PAID): R${grandTotal.toFixed(2)}` : `TOTAL: R${grandTotal.toFixed(2)}`;
+                doc.text(totalText, 145, yCursor);
+                doc.setFont(undefined, "normal");
+                yCursor += 8;
+                
+                // ---- PAYMENT TERMS / BANKING REPLACED (cash upon completion)----
+                let pageHeight = doc.internal.pageSize.height;
+                let termsY = pageHeight - 34;
+                if (yCursor + 20 > pageHeight) {
+                    doc.addPage();
+                    termsY = 20;
+                } else {
+                    termsY = Math.max(yCursor + 8, pageHeight - 34);
+                }
+                doc.setFontSize(8);
+                doc.setFont(undefined, "bold");
+                doc.text("Payment Terms", 8, termsY);
+                doc.setFont(undefined, "normal");
+                doc.text(paymentNote, 8, termsY + 4);
+                doc.text("No bank deposit required – settle upon job completion.", 8, termsY + 8);
+                doc.text("Thank you for trusting Salman Auto Electrician.", 8, termsY + 12);
+                
+                // Contact footer
+                doc.setFontSize(7);
+                doc.text(`📞 ${telInfo} | 📍 ${addressLine.substring(0, 50)}`, 8, termsY + 18);
+                
+                // paid stamp for invoice if marked paid
+                if (currentMode === "invoice" && isPaid && paidAvailable && paidStamp.complete && paidStamp.naturalWidth > 0) {
+                    try {
+                        doc.addImage(paidStamp, "PNG", 145, termsY - 8, 28, 12);
+                    } catch(e) {}
+                    doc.setFontSize(7);
+                    doc.text("PAID STAMP", 150, termsY);
+                } else if (currentMode === "invoice" && isPaid) {
+                    doc.setFontSize(8);
+                    doc.setTextColor(40, 100, 40);
+                    doc.text("✓ PAID IN FULL", 150, termsY);
+                    doc.setTextColor(0,0,0);
+                }
+                
+                // Signature line (simple aesthetic)
+                doc.line(150, termsY + 24, 200, termsY + 24);
+                doc.setFontSize(6);
+                doc.text("Authorised signature", 155, termsY + 28);
+                
+                // final footer
+                doc.setFontSize(6);
+                doc.text("Salman Auto Electrician – Quality auto electrical repairs. Cash on completion.", 8, pageHeight - 6);
+                
+                // generate blob and share/download
+                const pdfBlob = doc.output("blob", { compress: true });
+                const fileSafeName = clientName.replace(/\s+/g, '_').substring(0, 20);
+                const fileName = `${currentMode === "invoice" ? "Invoice" : "Quotation"}_${fileSafeName}_${displayDate.replace(/\//g, '-')}.pdf`;
+                const pdfUrl = URL.createObjectURL(pdfBlob);
+                const downloadLink = document.createElement("a");
+                downloadLink.href = pdfUrl;
+                downloadLink.download = fileName;
+                downloadLink.click();
+                
+                // try to share if supported
+                const fileObj = new File([pdfBlob], fileName, { type: "application/pdf" });
+                if (navigator.canShare && navigator.canShare({ files: [fileObj] })) {
+                    navigator.share({
+                        title: docTitle + " from Salman Auto Electrician",
+                        files: [fileObj]
+                    }).catch(() => {});
+                }
+                URL.revokeObjectURL(pdfUrl);
+            } catch (err) {
+                console.warn("PDF error", err);
+                alert("Could not generate PDF, please check console.");
+            }
+        }
+        
+        if (imagesLoaded === 0) {
+            // manual trigger if callbacks not yet executed
+            setTimeout(() => {
+                if (imagesLoaded < 2) {
+                    imagesLoaded = 2;
+                    buildFinalPDF();
+                }
+            }, 400);
+        }
+    }
+    
+    const generateBtn = document.getElementById("generatePDFBtn");
+    generateBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        generatePDF();
+    });
+</script>
+</body>
+</html>
