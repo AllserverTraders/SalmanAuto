@@ -32,24 +32,43 @@
             transition: all 0.2s;
         }
 
-        h1 {
+        /* Header with logo and business name side by side */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .logo-container {
+            flex-shrink: 0;
+        }
+
+        .logo-img {
+            width: 60px;
+            height: auto;
+            border-radius: 12px;
+        }
+
+        .business-info {
+            flex: 1;
+        }
+
+        .business-name {
             font-size: 1.9rem;
             font-weight: 800;
             letter-spacing: -0.4px;
             color: #0a2b3e;
-            text-align: center;
             margin-bottom: 0.2rem;
         }
 
         .tagline {
-            text-align: center;
             color: #2c6e6e;
             font-size: 0.85rem;
             font-weight: 500;
             background: #eaf8f0;
             display: inline-block;
-            width: auto;
-            margin: 0 auto 12px;
             padding: 4px 18px;
             border-radius: 60px;
         }
@@ -159,8 +178,15 @@
         .field-group label {
             font-weight: 700;
             color: #1c4b5e;
-            font-size: 0.78rem;
+            font-size: 0.85rem;
             letter-spacing: 0.3px;
+        }
+
+        /* Bold labels for specific fields */
+        .field-group label.bold-label {
+            font-weight: 800;
+            color: #0a2b3e;
+            font-size: 0.9rem;
         }
 
         input, select, textarea {
@@ -299,15 +325,29 @@
             .empty-items-message {
                 grid-column: span 1;
             }
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .business-name {
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
 <body>
 <div class="card">
-    <h1>⚡ SALMAN AUTO ELECTRICIAN</h1>
-    <div style="text-align: center; margin-top: -4px;">
-        <span class="tagline">Auto Electrical Diagnostics & Repairs</span>
+    <!-- Header with logo and business name side by side -->
+    <div class="header">
+        <div class="logo-container">
+            <img src="assets/logo.png" alt="Logo" class="logo-img" onerror="this.style.display='none'">
+        </div>
+        <div class="business-info">
+            <div class="business-name">⚡ SALMAN AUTO ELECTRICIAN</div>
+            <span class="tagline">Auto Electrical Diagnostics & Repairs</span>
+        </div>
     </div>
+
     <div class="mode-bar">
         <button class="mode-btn" id="invoiceModeBtn">📄 INVOICE</button>
         <button class="mode-btn" id="quotationModeBtn">📋 QUOTATION</button>
@@ -325,7 +365,7 @@
 
     <div class="form-grid">
         <div class="field-group">
-            <label>👤 Client Name</label>
+            <label class="bold-label">👤 CLIENT NAME</label>
             <input type="text" id="clientName" placeholder="Full name / Company">
         </div>
         <div class="field-group">
@@ -333,15 +373,15 @@
             <input type="date" id="documentDate">
         </div>
         <div class="field-group" style="grid-column: span 2;">
-            <label>📍 Service / Work Address</label>
+            <label class="bold-label">📍 SERVICE / WORK ADDRESS</label>
             <input type="text" id="workAddress" placeholder="Workshop location or customer address" value="No. 5, Henry Nxumalo Street, Johannesburg Central (Close to Shell Garage)">
         </div>
         <div class="field-group">
-            <label>🚗 Vehicle</label>
+            <label class="bold-label">🚗 VEHICLE</label>
             <input type="text" id="vehicle" placeholder="e.g., Toyota Hilux, VW Polo, BMW 3 Series">
         </div>
         <div class="field-group">
-            <label>🔧 Fault Description</label>
+            <label class="bold-label">🔧 FAULT DESCRIPTION</label>
             <textarea id="faultDescription" placeholder="Describe the electrical issue (e.g., alternator not charging, starter motor clicking, battery draining, lights flickering...)"></textarea>
         </div>
 
@@ -584,68 +624,75 @@
         
         function buildFinalPDF() {
             try {
+                // Logo on the left
                 if (logoAvailable && logoImg.complete && logoImg.naturalWidth > 0) {
-                    doc.addImage(logoImg, "PNG", 8, 6, 22, 16);
-                    doc.setFontSize(12);
-                    doc.setFont(undefined, "bold");
-                    doc.text(businessName, 35, 12);
-                    doc.setFontSize(8);
-                    doc.setFont(undefined, "normal");
-                    doc.text(telInfo, 35, 18);
-                    doc.text(addressLine, 35, 23);
-                } else {
-                    doc.setFontSize(14);
-                    doc.setFont(undefined, "bold");
-                    doc.text(businessName, 15, 14);
-                    doc.setFontSize(8);
-                    doc.setFont(undefined, "normal");
-                    doc.text(telInfo, 15, 20);
-                    doc.text(addressLine, 15, 25);
+                    doc.addImage(logoImg, "PNG", 8, 8, 22, 18);
                 }
                 
-                doc.setFontSize(12);
+                // Business name and details next to logo
+                doc.setFontSize(13);
                 doc.setFont(undefined, "bold");
-                doc.text(docTitle, 155, 12);
-                doc.setFontSize(8);
+                doc.text(businessName, 35, 13);
+                doc.setFontSize(7);
                 doc.setFont(undefined, "normal");
-                doc.text(`Date: ${displayDate}`, 155, 19);
+                doc.text(telInfo, 35, 19);
+                doc.text(addressLine, 35, 24);
                 
-                let headerBase = logoAvailable ? 30 : 33;
-                yCursor = headerBase;
+                doc.setFontSize(11);
+                doc.setFont(undefined, "bold");
+                doc.text(docTitle, 155, 13);
+                doc.setFontSize(7);
+                doc.setFont(undefined, "normal");
+                doc.text(`Date: ${displayDate}`, 155, 20);
+                
+                yCursor = 32;
                 doc.line(8, yCursor, 202, yCursor);
                 yCursor += 5;
                 
-                doc.setFontSize(8);
-                doc.text("Client:", 8, yCursor);
-                doc.text(clientName, 30, yCursor);
-                yCursor += 4;
-                doc.text("Service Address:", 8, yCursor);
-                doc.text(workAddr, 30, yCursor);
-                yCursor += 4;
-                doc.text("Vehicle:", 8, yCursor);
-                doc.text(vehicle, 30, yCursor);
-                yCursor += 4;
-                
-                if (faultDesc !== "—") {
-                    doc.text("Fault Description:", 8, yCursor);
-                    const splitFault = doc.splitTextToSize(faultDesc, 160);
-                    doc.text(splitFault, 30, yCursor);
-                    yCursor += (splitFault.length * 4);
-                }
-                
-                yCursor += 2;
-                doc.line(8, yCursor, 202, yCursor);
-                yCursor += 4;
+                // Client info section with bold labels
+                doc.setFontSize(8.5);
+                doc.setFont(undefined, "bold");
+                doc.text("CLIENT:", 8, yCursor);
+                doc.setFont(undefined, "normal");
+                doc.text(clientName, 45, yCursor);
+                yCursor += 5;
                 
                 doc.setFont(undefined, "bold");
-                doc.text("Description", 8, yCursor);
-                doc.text("Qty", 120, yCursor);
-                doc.text("Price (R)", 145, yCursor);
-                doc.text("Total (R)", 175, yCursor);
+                doc.text("SERVICE ADDRESS:", 8, yCursor);
+                doc.setFont(undefined, "normal");
+                const splitAddress = doc.splitTextToSize(workAddr, 130);
+                doc.text(splitAddress, 45, yCursor);
+                yCursor += (splitAddress.length * 4.5);
+                
+                doc.setFont(undefined, "bold");
+                doc.text("VEHICLE:", 8, yCursor);
+                doc.setFont(undefined, "normal");
+                doc.text(vehicle, 45, yCursor);
+                yCursor += 5;
+                
+                if (faultDesc !== "—") {
+                    doc.setFont(undefined, "bold");
+                    doc.text("FAULT DESCRIPTION:", 8, yCursor);
+                    doc.setFont(undefined, "normal");
+                    const splitFault = doc.splitTextToSize(faultDesc, 130);
+                    doc.text(splitFault, 45, yCursor);
+                    yCursor += (splitFault.length * 4.5);
+                }
+                
+                yCursor += 3;
+                doc.line(8, yCursor, 202, yCursor);
+                yCursor += 5;
+                
+                // Table headers
+                doc.setFont(undefined, "bold");
+                doc.text("DESCRIPTION", 8, yCursor);
+                doc.text("QTY", 120, yCursor);
+                doc.text("PRICE (R)", 145, yCursor);
+                doc.text("TOTAL (R)", 175, yCursor);
                 doc.setFont(undefined, "normal");
                 yCursor += 2;
                 doc.line(8, yCursor, 202, yCursor);
-                yCursor += 4;
+                yCursor += 5;
                 
                 grandTotal = 0;
                 
@@ -700,7 +747,7 @@
                 
                 doc.setFontSize(8);
                 doc.setFont(undefined, "bold");
-                doc.text("Payment Terms", 8, termsY);
+                doc.text("PAYMENT TERMS", 8, termsY);
                 doc.setFont(undefined, "normal");
                 doc.text(paymentNote, 8, termsY + 4);
                 doc.text("No bank deposit required – settle upon job completion.", 8, termsY + 8);
@@ -718,7 +765,7 @@
                     doc.text("Authorised signature", 158, termsY + 26);
                 }
                 
-                doc.setFontSize(7);
+                doc.setFontSize(6.5);
                 doc.text(`📞 ${telInfo} | ${addressLine.substring(0, 55)}`, 8, termsY + 32);
                 
                 if (currentMode === "invoice" && isPaid && paidAvailable && paidStamp.complete && paidStamp.naturalWidth > 0) {
