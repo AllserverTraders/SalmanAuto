@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Salman Auto Electrician · Compact Invoice & Quotation</title>
-    <!-- jsPDF library with improved compression -->
+    <title>Salman Auto Electrician · Invoice & Quotation</title>
+    <!-- jsPDF library for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * {
@@ -19,25 +19,24 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 12px;
+            padding: 16px;
         }
 
-        /* More compact card design */
         .card {
-            max-width: 980px;
+            max-width: 1000px;
             width: 100%;
             background: white;
-            border-radius: 24px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-            padding: 1.2rem 1.4rem;
+            border-radius: 28px;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+            padding: 1.8rem;
             transition: all 0.2s;
         }
 
         .header {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 4px;
+            gap: 15px;
+            margin-bottom: 10px;
             flex-wrap: wrap;
         }
 
@@ -46,9 +45,9 @@
         }
 
         .logo-img {
-            width: 48px;
+            width: 60px;
             height: auto;
-            border-radius: 10px;
+            border-radius: 12px;
         }
 
         .business-info {
@@ -56,37 +55,36 @@
         }
 
         .business-name {
-            font-size: 1.6rem;
+            font-size: 1.9rem;
             font-weight: 800;
-            letter-spacing: -0.3px;
+            letter-spacing: -0.4px;
             color: #0a2b3e;
-            line-height: 1.2;
-            margin-bottom: 0.1rem;
+            margin-bottom: 0.2rem;
         }
 
         .tagline {
             color: #2c6e6e;
-            font-size: 0.75rem;
+            font-size: 0.85rem;
             font-weight: 500;
             background: #eaf8f0;
             display: inline-block;
-            padding: 3px 14px;
-            border-radius: 40px;
+            padding: 4px 18px;
+            border-radius: 60px;
         }
 
         .mode-bar {
             display: flex;
-            gap: 0.8rem;
+            gap: 1rem;
             justify-content: center;
-            margin: 0.4rem 0 0rem;
+            margin: 0.6rem 0 0.2rem;
         }
 
         .mode-btn {
             background: none;
             border: 2px solid #cbdbe2;
-            padding: 0.35rem 1.5rem;
+            padding: 0.45rem 1.8rem;
             border-radius: 50px;
-            font-size: 0.9rem;
+            font-size: 1rem;
             font-weight: 600;
             color: #1f3e48;
             cursor: pointer;
@@ -97,16 +95,17 @@
             background: #0a2b3e;
             border-color: #0a2b3e;
             color: white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
 
         .doc-badge {
             text-align: center;
-            font-size: 0.85rem;
+            font-size: 1rem;
             background: #eef2fa;
-            padding: 3px 22px;
+            padding: 5px 28px;
             border-radius: 40px;
             display: inline-block;
-            margin: 4px auto 3px;
+            margin: 8px auto 5px;
             font-weight: 600;
             color: #1e4a5f;
         }
@@ -115,10 +114,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 10px;
-            margin: 4px auto 12px;
+            gap: 12px;
+            margin: 8px auto 16px;
             background: #f9fbfd;
-            padding: 4px 16px;
+            padding: 6px 18px;
             border-radius: 60px;
             width: fit-content;
             border: 1px solid #dee4ed;
@@ -127,8 +126,8 @@
         .toggle-switch {
             position: relative;
             display: inline-block;
-            width: 46px;
-            height: 24px;
+            width: 52px;
+            height: 26px;
             background: #cbd5e1;
             border-radius: 40px;
             cursor: pointer;
@@ -138,81 +137,88 @@
 
         .toggle-switch.active {
             background: #117f6f;
+            border-color: #0e5e52;
         }
 
         .toggle-slider {
             position: absolute;
-            height: 20px;
-            width: 20px;
+            height: 22px;
+            width: 22px;
             background: white;
             border-radius: 50%;
-            top: 1px;
+            top: 2px;
             left: 2px;
             transition: 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
 
         .toggle-switch.active .toggle-slider {
-            left: 24px;
+            left: 28px;
         }
 
         .paid-label {
             font-weight: 700;
             color: #134b44;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
         }
 
-        /* More compact grid */
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 0.8rem 1.2rem;
+            gap: 1rem 1.5rem;
         }
 
         .field-group {
             display: flex;
             flex-direction: column;
-            gap: 3px;
+            gap: 4px;
         }
 
         .field-group label {
             font-weight: 700;
             color: #1c4b5e;
-            font-size: 0.75rem;
-            letter-spacing: 0.2px;
+            font-size: 0.85rem;
+            letter-spacing: 0.3px;
         }
 
         .field-group label.bold-label {
             font-weight: 800;
             color: #0a2b3e;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
         }
 
         input, select, textarea {
-            padding: 6px 10px;
+            padding: 8px 12px;
             border: 1.5px solid #dce3ec;
-            border-radius: 14px;
-            font-size: 0.85rem;
+            border-radius: 16px;
+            font-size: 0.9rem;
             background: #fff;
-            transition: 0.15s;
+            transition: 0.2s;
             font-family: inherit;
         }
 
         textarea {
             resize: vertical;
-            min-height: 48px;
+            min-height: 60px;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #2c7a6e;
+            box-shadow: 0 0 0 3px rgba(17,127,111,0.15);
         }
 
         .section-title {
             grid-column: span 2;
             font-weight: 800;
             color: #0f3b42;
-            margin-top: 6px;
+            margin-top: 12px;
             border-bottom: 2px solid #cbdde8;
-            padding-bottom: 4px;
-            font-size: 0.95rem;
+            padding-bottom: 6px;
+            font-size: 1.05rem;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
 
         .generate-btn {
@@ -220,12 +226,19 @@
             background: #0a2b3e;
             color: white;
             border: none;
-            padding: 10px;
-            font-size: 0.95rem;
+            padding: 12px;
+            font-size: 1.05rem;
             font-weight: 700;
-            border-radius: 50px;
-            margin-top: 12px;
+            border-radius: 60px;
+            margin-top: 18px;
             cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+
+        .generate-btn:hover {
+            background: #144d5c;
+            transform: scale(0.99);
         }
 
         .manual-add-btn {
@@ -233,19 +246,24 @@
             background: #247a6b;
             color: white;
             border: none;
-            padding: 7px;
-            font-size: 0.8rem;
+            padding: 10px;
+            font-size: 0.9rem;
             font-weight: 700;
             border-radius: 40px;
             cursor: pointer;
-            margin-top: 2px;
+            transition: 0.2s;
+            margin-top: 5px;
+        }
+
+        .manual-add-btn:hover {
+            background: #1a6356;
         }
 
         .manual-item-row {
             display: grid;
-            grid-template-columns: 2.5fr 0.8fr 1fr 0.5fr;
-            gap: 8px;
-            margin-bottom: 8px;
+            grid-template-columns: 2.5fr 1fr 1fr 0.4fr;
+            gap: 10px;
+            margin-bottom: 10px;
             align-items: center;
         }
 
@@ -254,40 +272,64 @@
             border: none;
             color: white;
             font-weight: bold;
-            border-radius: 30px;
-            padding: 6px 0;
+            border-radius: 32px;
+            padding: 8px 0;
             cursor: pointer;
-            font-size: 0.7rem;
+            font-size: 0.8rem;
+            transition: 0.1s;
+        }
+
+        .manual-remove-btn:hover {
+            background: #a51e22;
         }
 
         .empty-items-message {
             grid-column: span 2;
             text-align: center;
-            padding: 12px;
+            padding: 20px;
             color: #8ba0b5;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             background: #fafcfd;
-            border-radius: 20px;
+            border-radius: 24px;
             border: 1px dashed #cbdbe2;
-            margin-bottom: 6px;
+            margin-bottom: 10px;
         }
 
         .note {
             grid-column: span 2;
-            font-size: 0.65rem;
+            font-size: 0.7rem;
             color: #3f6b6b;
             text-align: center;
-            margin-top: 8px;
+            margin-top: 14px;
             background: #f4f9fe;
-            padding: 6px;
+            padding: 8px;
             border-radius: 40px;
         }
 
-        @media (max-width: 680px) {
-            .card { padding: 1rem; }
-            .form-grid, .section-title, .generate-btn, .manual-add-btn { grid-column: span 1 !important; }
-            .manual-item-row { grid-template-columns: 1fr; gap: 6px; }
-            .form-grid { grid-template-columns: 1fr; }
+        @media (max-width: 720px) {
+            .card {
+                padding: 1.2rem;
+            }
+            .form-grid, .section-title, .generate-btn, .manual-add-btn, .note {
+                grid-column: span 1 !important;
+            }
+            .manual-item-row {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .empty-items-message {
+                grid-column: span 1;
+            }
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .business-name {
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
@@ -328,25 +370,25 @@
             <input type="date" id="documentDate">
         </div>
         <div class="field-group" style="grid-column: span 2;">
-            <label class="bold-label">📍 SERVICE ADDRESS</label>
-            <input type="text" id="workAddress" placeholder="Workshop or customer address" value="No. 5, Henry Nxumalo Street, Johannesburg Central">
+            <label class="bold-label">📍 SERVICE / WORK ADDRESS</label>
+            <input type="text" id="workAddress" placeholder="Workshop location or customer address" value="No. 5, Henry Nxumalo Street, Johannesburg Central (Close to Shell Garage)">
         </div>
         <div class="field-group">
             <label class="bold-label">🚗 VEHICLE</label>
-            <input type="text" id="vehicle" placeholder="e.g., Toyota Hilux, VW Polo">
+            <input type="text" id="vehicle" placeholder="e.g., Toyota Hilux, VW Polo, BMW 3 Series">
         </div>
         <div class="field-group">
             <label class="bold-label">🔧 FAULT DESCRIPTION</label>
-            <textarea id="faultDescription" placeholder="Describe the electrical issue"></textarea>
+            <textarea id="faultDescription" placeholder="Describe the electrical issue (e.g., alternator not charging, starter motor clicking, battery draining, lights flickering...)"></textarea>
         </div>
 
         <div class="section-title">🔧 LABOUR, PARTS & SERVICES</div>
         <div id="manualItemsContainer" style="grid-column: span 2;"></div>
-        <button type="button" class="manual-add-btn" id="addItemBtn">+ Add Custom Item</button>
+        <button type="button" class="manual-add-btn" id="addItemBtn">+ Add Custom Item (part / labour / diagnostic)</button>
 
         <div class="section-title">💰 ADJUSTMENTS</div>
         <div class="field-group">
-            <label>➕ Extra charge (call-out fee etc.)</label>
+            <label>➕ Extra charge (e.g., call-out fee)</label>
             <input type="number" id="extraPayment" min="0" step="0.01" placeholder="0.00">
         </div>
         <div class="field-group">
@@ -356,7 +398,7 @@
 
         <button class="generate-btn" id="generatePDFBtn">📑 Generate & Share Document</button>
         <div class="note">
-            ✅ Payment terms: Cash upon completion. Thank you for choosing Salman Auto Electrician.
+            ✅ Payment terms: Cash upon completion of work. Thank you for choosing Salman Auto Electrician.
         </div>
     </div>
 </div>
@@ -406,7 +448,7 @@
             const emptyMsg = document.createElement("div");
             emptyMsg.className = "empty-items-message";
             emptyMsg.id = "emptyItemsMessage";
-            emptyMsg.innerHTML = "📭 No items added. Click above to add services, parts or labour.";
+            emptyMsg.innerHTML = "📭 No items added yet. Click the button above to add services, parts, or labour.";
             manualContainer.appendChild(emptyMsg);
         } else if (hasItems && existingMsg) {
             existingMsg.remove();
@@ -467,9 +509,9 @@
         const rowDiv = document.createElement("div");
         rowDiv.className = "manual-item-row";
         rowDiv.innerHTML = `
-            <input type="text" class="manual-name" placeholder="Description (Alternator, Starter, wiring)" value="${escapeHtml(itemName)}">
+            <input type="text" class="manual-name" placeholder="Description (e.g., Alternator repair, Starter motor)" value="${escapeHtml(itemName)}">
             <input type="number" class="manual-qty" min="0" step="1" placeholder="Qty" value="${quantity}">
-            <input type="number" class="manual-price" min="0" step="0.01" placeholder="Unit (R)" value="${unitPrice}">
+            <input type="number" class="manual-price" min="0" step="0.01" placeholder="Unit price (R)" value="${unitPrice}">
             <button type="button" class="manual-remove-btn">✖ Remove</button>
         `;
         const removeBtn = rowDiv.querySelector(".manual-remove-btn");
@@ -494,12 +536,11 @@
 
     async function generatePDF() {
         const { jsPDF } = window.jspdf;
-        // Optimized layout: smaller margins, more compact font sizing to reduce total pages/white space
-        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true, lineHeight: 1.15 });
-        
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
+
         const businessName = "SALMAN AUTO ELECTRICIAN";
         const telInfo = "Tel: 062 210 4835";
-        const addressLine = "No. 5, Henry Nxumalo Street, Johannesburg Central";
+        const addressLine = "No. 5, Henry Nxumalo Street, Johannesburg Central (Close to Shell Garage)";
         const paymentNote = "Cash upon completion of work";
 
         let clientName = document.getElementById("clientName").value.trim();
@@ -527,7 +568,7 @@
         function checkAllLoaded() {
             imagesLoaded++;
             if (imagesLoaded === 3) {
-                buildCompactPDF();
+                buildPDF();
             }
         }
         
@@ -541,98 +582,93 @@
         setTimeout(() => {
             if (imagesLoaded < 3) {
                 imagesLoaded = 3;
-                buildCompactPDF();
+                buildPDF();
             }
-        }, 600);
+        }, 800);
         
-        function buildCompactPDF() {
+        function buildPDF() {
             try {
-                // ========== COMPACT HEADER ==========
-                const startY = 14;
-                let yCursor = startY;
-                
+                // === HEADER WITH LOGO ===
+                // Add logo at top left
                 if (logoLoaded && logoImg.complete && logoImg.naturalWidth > 0) {
-                    doc.addImage(logoImg, "PNG", 8, 6, 22, 18);
-                    doc.setFontSize(11);
+                    doc.addImage(logoImg, "PNG", 10, 8, 24, 20);
+                    doc.setFontSize(12);
                     doc.setFont(undefined, "bold");
-                    doc.text(businessName, 34, 12);
-                    doc.setFontSize(6.5);
-                    doc.setFont(undefined, "normal");
-                    doc.text(telInfo, 34, 17);
-                    doc.text(addressLine, 34, 21.5);
-                    yCursor = 28;
-                } else {
-                    doc.setFontSize(13);
-                    doc.setFont(undefined, "bold");
-                    doc.text(businessName, 12, 12);
+                    doc.text(businessName, 40, 15);
                     doc.setFontSize(7);
                     doc.setFont(undefined, "normal");
-                    doc.text(telInfo, 12, 18);
-                    doc.text(addressLine, 12, 23);
-                    yCursor = 30;
+                    doc.text(telInfo, 40, 21);
+                    doc.text(addressLine, 40, 26);
+                } else {
+                    doc.setFontSize(14);
+                    doc.setFont(undefined, "bold");
+                    doc.text(businessName, 15, 15);
+                    doc.setFontSize(7);
+                    doc.setFont(undefined, "normal");
+                    doc.text(telInfo, 15, 22);
+                    doc.text(addressLine, 15, 27);
                 }
                 
-                // Title + date on right side
-                doc.setFontSize(9);
+                // Document title and date on the right
+                doc.setFontSize(11);
                 doc.setFont(undefined, "bold");
-                doc.text(docTitle, 158, 12);
-                doc.setFontSize(6.5);
-                doc.setFont(undefined, "normal");
-                doc.text(`Date: ${displayDate}`, 158, 18);
-                
-                // divider line
-                doc.line(8, yCursor, 202, yCursor);
-                yCursor += 4;
-                
-                // Client & info compact spacing
+                doc.text(docTitle, 155, 12);
                 doc.setFontSize(7);
-                doc.setFont(undefined, "bold");
-                doc.text("CLIENT:", 8, yCursor);
                 doc.setFont(undefined, "normal");
-                doc.text(clientName, 35, yCursor);
-                yCursor += 4.5;
+                doc.text(`Date: ${displayDate}`, 155, 19);
+                
+                let yPos = 38;
+                doc.line(10, yPos, 200, yPos);
+                yPos += 6;
+                
+                // Client information section with bold labels
+                doc.setFontSize(8.5);
+                doc.setFont(undefined, "bold");
+                doc.text("CLIENT:", 10, yPos);
+                doc.setFont(undefined, "normal");
+                doc.text(clientName, 45, yPos);
+                yPos += 5;
                 
                 doc.setFont(undefined, "bold");
-                doc.text("ADDRESS:", 8, yCursor);
+                doc.text("SERVICE ADDRESS:", 10, yPos);
                 doc.setFont(undefined, "normal");
-                const addrLines = doc.splitTextToSize(workAddr, 125);
-                doc.text(addrLines, 35, yCursor);
-                yCursor += (addrLines.length * 3.8);
+                const addrLines = doc.splitTextToSize(workAddr, 135);
+                doc.text(addrLines, 45, yPos);
+                yPos += (addrLines.length * 4.5);
                 
                 doc.setFont(undefined, "bold");
-                doc.text("VEHICLE:", 8, yCursor);
+                doc.text("VEHICLE:", 10, yPos);
                 doc.setFont(undefined, "normal");
-                doc.text(vehicle, 35, yCursor);
-                yCursor += 4.2;
+                doc.text(vehicle, 45, yPos);
+                yPos += 5;
                 
                 if (faultDesc !== "—") {
                     doc.setFont(undefined, "bold");
-                    doc.text("FAULT:", 8, yCursor);
+                    doc.text("FAULT DESCRIPTION:", 10, yPos);
                     doc.setFont(undefined, "normal");
-                    const faultLines = doc.splitTextToSize(faultDesc, 125);
-                    doc.text(faultLines, 35, yCursor);
-                    yCursor += (faultLines.length * 3.8);
+                    const faultLines = doc.splitTextToSize(faultDesc, 135);
+                    doc.text(faultLines, 45, yPos);
+                    yPos += (faultLines.length * 4.5);
                 }
                 
-                yCursor += 2.5;
-                doc.line(8, yCursor, 202, yCursor);
-                yCursor += 4;
+                yPos += 4;
+                doc.line(10, yPos, 200, yPos);
+                yPos += 5;
                 
-                // Table headers compact
-                doc.setFontSize(7.5);
+                // Table headers
                 doc.setFont(undefined, "bold");
-                doc.text("DESCRIPTION", 8, yCursor);
-                doc.text("QTY", 125, yCursor);
-                doc.text("PRICE (R)", 145, yCursor);
-                doc.text("TOTAL (R)", 172, yCursor);
+                doc.text("DESCRIPTION", 10, yPos);
+                doc.text("QTY", 120, yPos);
+                doc.text("PRICE (R)", 145, yPos);
+                doc.text("TOTAL (R)", 175, yPos);
                 doc.setFont(undefined, "normal");
-                yCursor += 1.8;
-                doc.line(8, yCursor, 202, yCursor);
-                yCursor += 4.2;
+                yPos += 2;
+                doc.line(10, yPos, 200, yPos);
+                yPos += 5;
                 
                 let grandTotal = 0;
                 
-                // Process manual items more tightly
+                // Process manual items
                 const allRows = document.querySelectorAll("#manualItemsContainer .manual-item-row");
                 for (let row of allRows) {
                     const descElem = row.querySelector(".manual-name");
@@ -648,28 +684,28 @@
                         let total = qty * price;
                         grandTotal += total;
                         
-                        if (yCursor > 270) {
+                        if (yPos > 270) {
                             doc.addPage();
-                            yCursor = 18;
-                            doc.setFontSize(7.5);
+                            yPos = 20;
+                            doc.setFontSize(8);
                             doc.setFont(undefined, "bold");
-                            doc.text("DESCRIPTION", 8, yCursor);
-                            doc.text("QTY", 125, yCursor);
-                            doc.text("PRICE (R)", 145, yCursor);
-                            doc.text("TOTAL (R)", 172, yCursor);
+                            doc.text("DESCRIPTION", 10, yPos);
+                            doc.text("QTY", 120, yPos);
+                            doc.text("PRICE (R)", 145, yPos);
+                            doc.text("TOTAL (R)", 175, yPos);
                             doc.setFont(undefined, "normal");
-                            yCursor += 2;
-                            doc.line(8, yCursor, 202, yCursor);
-                            yCursor += 4;
+                            yPos += 2;
+                            doc.line(10, yPos, 200, yPos);
+                            yPos += 5;
                         }
                         
-                        doc.setFontSize(7);
-                        let shortDesc = desc.length > 48 ? desc.substring(0, 45) + "..." : desc;
-                        doc.text(shortDesc, 8, yCursor);
-                        doc.text(qty.toString(), 125, yCursor);
-                        doc.text("R" + price.toFixed(2), 145, yCursor);
-                        doc.text("R" + total.toFixed(2), 172, yCursor);
-                        yCursor += 3.8;
+                        doc.setFontSize(7.5);
+                        let shortDesc = desc.length > 45 ? desc.substring(0, 42) + "..." : desc;
+                        doc.text(shortDesc, 10, yPos);
+                        doc.text(qty.toString(), 120, yPos);
+                        doc.text("R" + price.toFixed(2), 145, yPos);
+                        doc.text("R" + total.toFixed(2), 175, yPos);
+                        yPos += 4;
                     }
                 }
                 
@@ -678,84 +714,91 @@
                 
                 if (extra > 0) {
                     grandTotal += extra;
-                    if (yCursor > 268) { doc.addPage(); yCursor = 20; doc.setFontSize(7); }
-                    doc.setFontSize(7);
-                    doc.text("Extra charge / adjustment", 8, yCursor);
-                    doc.text("1", 125, yCursor);
-                    doc.text("R" + extra.toFixed(2), 145, yCursor);
-                    doc.text("R" + extra.toFixed(2), 172, yCursor);
-                    yCursor += 3.8;
+                    if (yPos > 270) {
+                        doc.addPage();
+                        yPos = 20;
+                    }
+                    doc.setFontSize(7.5);
+                    doc.text("Extra charge / adjustment", 10, yPos);
+                    doc.text("1", 120, yPos);
+                    doc.text("R" + extra.toFixed(2), 145, yPos);
+                    doc.text("R" + extra.toFixed(2), 175, yPos);
+                    yPos += 4;
                 }
                 
                 if (discount > 0) {
                     grandTotal -= discount;
-                    if (yCursor > 268) { doc.addPage(); yCursor = 20; }
-                    doc.setFontSize(7);
-                    doc.text("Discount applied", 8, yCursor);
-                    doc.text("-", 125, yCursor);
-                    doc.text("R" + discount.toFixed(2), 172, yCursor);
-                    yCursor += 3.8;
+                    if (yPos > 270) {
+                        doc.addPage();
+                        yPos = 20;
+                    }
+                    doc.setFontSize(7.5);
+                    doc.text("Discount applied", 10, yPos);
+                    doc.text("-", 120, yPos);
+                    doc.text("R" + discount.toFixed(2), 175, yPos);
+                    yPos += 4;
                 }
                 
-                doc.line(145, yCursor, 202, yCursor);
-                yCursor += 3.5;
+                doc.line(145, yPos, 200, yPos);
+                yPos += 4;
                 doc.setFont(undefined, "bold");
-                doc.setFontSize(9);
+                doc.setFontSize(10);
                 let totalDisplay = (currentMode === "invoice" && isPaid) ? `TOTAL (PAID): R${grandTotal.toFixed(2)}` : `TOTAL: R${grandTotal.toFixed(2)}`;
-                doc.text(totalDisplay, 155, yCursor);
+                doc.text(totalDisplay, 150, yPos);
                 doc.setFont(undefined, "normal");
-                yCursor += 6.5;
+                yPos += 10;
                 
-                // ----- Compact footer & signature area (less wasted space)
+                // Payment terms and signature section
                 let pageHeight = doc.internal.pageSize.height;
-                let footerBaseY = Math.max(yCursor + 2, pageHeight - 34);
-                if (footerBaseY + 28 > pageHeight) {
+                let footerY = pageHeight - 38;
+                
+                if (yPos + 25 > pageHeight) {
                     doc.addPage();
-                    footerBaseY = 20;
+                    footerY = 25;
+                } else {
+                    footerY = Math.max(yPos + 5, pageHeight - 42);
                 }
                 
-                doc.setFontSize(7);
+                doc.setFontSize(8);
                 doc.setFont(undefined, "bold");
-                doc.text("PAYMENT TERMS", 8, footerBaseY);
+                doc.text("PAYMENT TERMS", 10, footerY);
                 doc.setFont(undefined, "normal");
-                doc.text(paymentNote, 8, footerBaseY + 4);
-                doc.text("No bank deposit – settle after completion", 8, footerBaseY + 7.5);
-                doc.text("Thank you for trusting Salman Auto Electrician.", 8, footerBaseY + 11);
+                doc.text(paymentNote, 10, footerY + 4);
+                doc.text("No bank deposit required – settle upon job completion.", 10, footerY + 8);
+                doc.text("Thank you for trusting Salman Auto Electrician.", 10, footerY + 12);
                 
-                // Signature area - compact but elegant
+                // Signature
                 if (signatureLoaded && signatureImg.complete && signatureImg.naturalWidth > 0) {
                     try {
-                        doc.addImage(signatureImg, "PNG", 148, footerBaseY + 8, 32, 8);
+                        doc.addImage(signatureImg, "PNG", 150, footerY + 14, 35, 10);
                     } catch(e) {}
-                    doc.setFontSize(5.5);
-                    doc.text("Authorised signature", 156, footerBaseY + 19);
+                    doc.setFontSize(6);
+                    doc.text("Authorised signature", 158, footerY + 27);
                 } else {
-                    doc.line(148, footerBaseY + 13, 200, footerBaseY + 13);
-                    doc.setFontSize(5.5);
-                    doc.text("Authorised signature", 156, footerBaseY + 17);
+                    doc.line(150, footerY + 22, 200, footerY + 22);
+                    doc.setFontSize(6);
+                    doc.text("Authorised signature", 158, footerY + 26);
                 }
                 
-                // Paid stamp – placed inside footer region not overlapping content
+                
+                // Paid stamp for invoice mode
                 if (currentMode === "invoice" && isPaid && paidLoaded && paidStamp.complete && paidStamp.naturalWidth > 0) {
                     try {
-                        doc.addImage(paidStamp, "PNG", 140, footerBaseY - 5, 28, 10);
+                        doc.addImage(paidStamp, "PNG", 140, footerY - 8, 32, 14);
                     } catch(e) {}
                 } else if (currentMode === "invoice" && isPaid) {
-                    doc.setFontSize(7);
-                    doc.setTextColor(0, 100, 0);
-                    doc.text("✓ PAID IN FULL", 155, footerBaseY - 2);
+                    doc.setFontSize(8);
+                    doc.setTextColor(40, 100, 40);
+                    doc.text("✓ PAID IN FULL", 152, footerY - 2);
                     doc.setTextColor(0, 0, 0);
                 }
                 
-                // Tiny reference at bottom edge
-                doc.setFontSize(5.5);
-                doc.setTextColor(100,100,100);
-                doc.text("Salman Auto Electrician – Quality repairs. Cash on completion.", 8, pageHeight - 5);
-                doc.setTextColor(0,0,0);
+                doc.setFontSize(6);
+                doc.text("Salman Auto Electrician – Quality auto electrical repairs. Cash on completion.", 10, pageHeight - 6);
                 
-                // ----- Compact PDF output & sharing -----
+                // Save and share
                 const pdfBlob = doc.output("blob");
-                const fileName = `${currentMode === "invoice" ? "Invoice" : "Quotation"}_${clientName.replace(/\s+/g, '_').substring(0,20)}_${displayDate.replace(/\//g, '-')}.pdf`;
+                const fileName = `${currentMode === "invoice" ? "Invoice" : "Quotation"}_${clientName.replace(/\s+/g, '_')}_${displayDate.replace(/\//g, '-')}.pdf`;
                 const pdfUrl = URL.createObjectURL(pdfBlob);
                 const link = document.createElement("a");
                 link.href = pdfUrl;
@@ -769,9 +812,10 @@
                     }).catch(() => {});
                 }
                 URL.revokeObjectURL(pdfUrl);
+                
             } catch(err) {
-                console.error("PDF compact error:", err);
-                alert("Could not generate PDF. Make sure assets folder contains logo/paid/signature (optional) or retry.");
+                console.error("PDF Error:", err);
+                alert("Error generating PDF. Please check that all images exist in the assets folder.");
             }
         }
     }
@@ -784,3 +828,5 @@
 </script>
 </body>
 </html>
+
+
