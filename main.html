@@ -1,87 +1,786 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Salman Auto Electrician · Invoice & Quotation</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<style>
-*{box-sizing:border-box;margin:0;font-family:system-ui,Roboto,sans-serif}body{background:#eef2f5;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:16px}.card{max-width:1000px;width:100%;background:#fff;border-radius:28px;box-shadow:0 12px 28px rgba(0,0,0,.08);padding:1.5rem}.header{display:flex;align-items:center;gap:15px;margin-bottom:10px;flex-wrap:wrap}.logo-img{width:60px;height:auto;border-radius:12px}.business-name{font-size:1.8rem;font-weight:800;color:#0a2b3e}.tagline{color:#2c6e6e;font-size:.8rem;background:#eaf8f0;display:inline-block;padding:4px 18px;border-radius:60px}.mode-bar{display:flex;gap:1rem;justify-content:center;margin:10px 0}.mode-btn{background:0;border:2px solid #cbdbe2;padding:.4rem 1.5rem;border-radius:50px;font-weight:600;color:#1f3e48;cursor:pointer}.mode-btn.active{background:#0a2b3e;border-color:#0a2b3e;color:#fff}.doc-badge{text-align:center;font-size:1rem;background:#eef2fa;padding:5px 28px;border-radius:40px;display:inline-block;margin:8px auto;font-weight:600}.paid-toggle-container{display:flex;justify-content:center;align-items:center;gap:12px;margin:8px auto;padding:6px 18px;border-radius:60px;width:fit-content;background:#f9fbfd;border:1px solid #dee4ed}.toggle-switch{position:relative;width:52px;height:26px;background:#cbd5e1;border-radius:40px;cursor:pointer;border:1px solid #a0b3c2}.toggle-switch.active{background:#117f6f}.toggle-slider{position:absolute;width:22px;height:22px;background:#fff;border-radius:50%;top:2px;left:2px;transition:.2s}.toggle-switch.active .toggle-slider{left:28px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}.field-group{display:flex;flex-direction:column;gap:4px}.field-group label{font-weight:800;color:#0a2b3e;font-size:.8rem}input,textarea{padding:8px 12px;border:1.5px solid #dce3ec;border-radius:16px;font-size:.9rem;background:#fff;font-family:inherit}textarea{resize:vertical;min-height:60px}.section-title{grid-column:span 2;font-weight:800;color:#0f3b42;margin-top:12px;border-bottom:2px solid #cbdde8;padding-bottom:6px}.generate-btn{grid-column:span 2;background:#0a2b3e;color:#fff;border:0;padding:12px;font-weight:700;border-radius:60px;margin-top:18px;cursor:pointer}.manual-add-btn{grid-column:span 2;background:#247a6b;color:#fff;border:0;padding:10px;font-weight:700;border-radius:40px;cursor:pointer;margin-top:5px}.manual-item-row{display:grid;grid-template-columns:2.5fr 1fr 1fr .4fr;gap:10px;margin-bottom:10px;align-items:center}.manual-remove-btn{background:#c72a2f;border:0;color:#fff;font-weight:700;border-radius:32px;padding:8px;cursor:pointer}.empty-items-message{grid-column:span 2;text-align:center;padding:20px;color:#8ba0b5;background:#fafcfd;border-radius:24px;border:1px dashed #cbdbe2}.note{grid-column:span 2;font-size:.7rem;color:#3f6b6b;text-align:center;margin-top:14px;background:#f4f9fe;padding:8px;border-radius:40px}@media(max-width:720px){.form-grid,.section-title,.generate-btn,.manual-add-btn,.note,.empty-items-message{grid-column:span 1}.manual-item-row{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.header{flex-direction:column;text-align:center}.business-name{font-size:1.5rem}}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Salman Auto Electrician · Compact Invoice & Quotation</title>
+    <!-- jsPDF library with improved compression -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background: #eef2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 12px;
+        }
+
+        /* More compact card design */
+        .card {
+            max-width: 980px;
+            width: 100%;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+            padding: 1.2rem 1.4rem;
+            transition: all 0.2s;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 4px;
+            flex-wrap: wrap;
+        }
+
+        .logo-container {
+            flex-shrink: 0;
+        }
+
+        .logo-img {
+            width: 48px;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        .business-info {
+            flex: 1;
+        }
+
+        .business-name {
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+            color: #0a2b3e;
+            line-height: 1.2;
+            margin-bottom: 0.1rem;
+        }
+
+        .tagline {
+            color: #2c6e6e;
+            font-size: 0.75rem;
+            font-weight: 500;
+            background: #eaf8f0;
+            display: inline-block;
+            padding: 3px 14px;
+            border-radius: 40px;
+        }
+
+        .mode-bar {
+            display: flex;
+            gap: 0.8rem;
+            justify-content: center;
+            margin: 0.4rem 0 0rem;
+        }
+
+        .mode-btn {
+            background: none;
+            border: 2px solid #cbdbe2;
+            padding: 0.35rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #1f3e48;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .mode-btn.active {
+            background: #0a2b3e;
+            border-color: #0a2b3e;
+            color: white;
+        }
+
+        .doc-badge {
+            text-align: center;
+            font-size: 0.85rem;
+            background: #eef2fa;
+            padding: 3px 22px;
+            border-radius: 40px;
+            display: inline-block;
+            margin: 4px auto 3px;
+            font-weight: 600;
+            color: #1e4a5f;
+        }
+
+        .paid-toggle-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin: 4px auto 12px;
+            background: #f9fbfd;
+            padding: 4px 16px;
+            border-radius: 60px;
+            width: fit-content;
+            border: 1px solid #dee4ed;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 46px;
+            height: 24px;
+            background: #cbd5e1;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid #a0b3c2;
+        }
+
+        .toggle-switch.active {
+            background: #117f6f;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            height: 20px;
+            width: 20px;
+            background: white;
+            border-radius: 50%;
+            top: 1px;
+            left: 2px;
+            transition: 0.2s;
+        }
+
+        .toggle-switch.active .toggle-slider {
+            left: 24px;
+        }
+
+        .paid-label {
+            font-weight: 700;
+            color: #134b44;
+            font-size: 0.85rem;
+        }
+
+        /* More compact grid */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem 1.2rem;
+        }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .field-group label {
+            font-weight: 700;
+            color: #1c4b5e;
+            font-size: 0.75rem;
+            letter-spacing: 0.2px;
+        }
+
+        .field-group label.bold-label {
+            font-weight: 800;
+            color: #0a2b3e;
+            font-size: 0.8rem;
+        }
+
+        input, select, textarea {
+            padding: 6px 10px;
+            border: 1.5px solid #dce3ec;
+            border-radius: 14px;
+            font-size: 0.85rem;
+            background: #fff;
+            transition: 0.15s;
+            font-family: inherit;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 48px;
+        }
+
+        .section-title {
+            grid-column: span 2;
+            font-weight: 800;
+            color: #0f3b42;
+            margin-top: 6px;
+            border-bottom: 2px solid #cbdde8;
+            padding-bottom: 4px;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .generate-btn {
+            grid-column: span 2;
+            background: #0a2b3e;
+            color: white;
+            border: none;
+            padding: 10px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            border-radius: 50px;
+            margin-top: 12px;
+            cursor: pointer;
+        }
+
+        .manual-add-btn {
+            grid-column: span 2;
+            background: #247a6b;
+            color: white;
+            border: none;
+            padding: 7px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            border-radius: 40px;
+            cursor: pointer;
+            margin-top: 2px;
+        }
+
+        .manual-item-row {
+            display: grid;
+            grid-template-columns: 2.5fr 0.8fr 1fr 0.5fr;
+            gap: 8px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+
+        .manual-remove-btn {
+            background: #c72a2f;
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 30px;
+            padding: 6px 0;
+            cursor: pointer;
+            font-size: 0.7rem;
+        }
+
+        .empty-items-message {
+            grid-column: span 2;
+            text-align: center;
+            padding: 12px;
+            color: #8ba0b5;
+            font-size: 0.8rem;
+            background: #fafcfd;
+            border-radius: 20px;
+            border: 1px dashed #cbdbe2;
+            margin-bottom: 6px;
+        }
+
+        .note {
+            grid-column: span 2;
+            font-size: 0.65rem;
+            color: #3f6b6b;
+            text-align: center;
+            margin-top: 8px;
+            background: #f4f9fe;
+            padding: 6px;
+            border-radius: 40px;
+        }
+
+        @media (max-width: 680px) {
+            .card { padding: 1rem; }
+            .form-grid, .section-title, .generate-btn, .manual-add-btn { grid-column: span 1 !important; }
+            .manual-item-row { grid-template-columns: 1fr; gap: 6px; }
+            .form-grid { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
 <div class="card">
-<div class="header"><img src="assets/logo.png" alt="Logo" class="logo-img" onerror="this.style.display='none'"><div><div class="business-name">⚡ SALMAN AUTO ELECTRICIAN</div><span class="tagline">Auto Electrical Diagnostics & Repairs</span></div></div>
-<div class="mode-bar"><button class="mode-btn active" id="invoiceModeBtn">📄 INVOICE</button><button class="mode-btn" id="quotationModeBtn">📋 QUOTATION</button></div>
-<div style="text-align:center"><span class="doc-badge" id="documentTypeLabel">Invoice</span></div>
-<div id="paidToggleWrapper" class="paid-toggle-container"><span>✓ Mark as PAID</span><div id="paidToggleSwitch" class="toggle-switch"><div class="toggle-slider"></div></div></div>
-<div class="form-grid">
-<div class="field-group"><label>👤 CLIENT NAME</label><input type="text" id="clientName" placeholder="Full name / Company"></div>
-<div class="field-group"><label>📅 DATE</label><input type="date" id="documentDate"></div>
-<div class="field-group" style="grid-column:span 2"><label>📍 SERVICE ADDRESS</label><input type="text" id="workAddress" value="No. 5, Henry Nxumalo Street, Johannesburg Central (Close to Shell Garage)"></div>
-<div class="field-group"><label>🚗 VEHICLE</label><input type="text" id="vehicle" placeholder="e.g., Toyota Hilux"></div>
-<div class="field-group"><label>🔧 FAULT DESCRIPTION</label><textarea id="faultDescription" placeholder="Describe the electrical issue..."></textarea></div>
-<div class="section-title">🔧 LABOUR, PARTS & SERVICES</div>
-<div id="manualItemsContainer" style="grid-column:span 2"></div>
-<button class="manual-add-btn" id="addItemBtn">+ Add Item</button>
-<div class="section-title">💰 ADJUSTMENTS</div>
-<div class="field-group"><label>➕ Extra charge</label><input type="number" id="extraPayment" min="0" step="0.01" placeholder="0.00"></div>
-<div class="field-group"><label>➖ Discount (R)</label><input type="number" id="discount" min="0" step="0.01" placeholder="0.00"></div>
-<button class="generate-btn" id="generatePDFBtn">📑 Generate & Share</button>
-<div class="note">✅ Payment: Cash upon completion. Thank you for choosing Salman Auto Electrician.</div>
-</div></div>
+    <div class="header">
+        <div class="logo-container">
+            <img src="assets/logo.png" alt="Logo" class="logo-img" onerror="this.style.display='none'">
+        </div>
+        <div class="business-info">
+            <div class="business-name">⚡ SALMAN AUTO ELECTRICIAN</div>
+            <span class="tagline">Auto Electrical Diagnostics & Repairs</span>
+        </div>
+    </div>
+
+    <div class="mode-bar">
+        <button class="mode-btn" id="invoiceModeBtn">📄 INVOICE</button>
+        <button class="mode-btn" id="quotationModeBtn">📋 QUOTATION</button>
+    </div>
+    <div style="text-align:center;">
+        <span class="doc-badge" id="documentTypeLabel">Invoice</span>
+    </div>
+
+    <div id="paidToggleWrapper" class="paid-toggle-container">
+        <span class="paid-label">✓ Mark as PAID (invoice)</span>
+        <div id="paidToggleSwitch" class="toggle-switch">
+            <div class="toggle-slider"></div>
+        </div>
+    </div>
+
+    <div class="form-grid">
+        <div class="field-group">
+            <label class="bold-label">👤 CLIENT NAME</label>
+            <input type="text" id="clientName" placeholder="Full name / Company">
+        </div>
+        <div class="field-group">
+            <label>📅 Document Date</label>
+            <input type="date" id="documentDate">
+        </div>
+        <div class="field-group" style="grid-column: span 2;">
+            <label class="bold-label">📍 SERVICE ADDRESS</label>
+            <input type="text" id="workAddress" placeholder="Workshop or customer address" value="No. 5, Henry Nxumalo Street, Johannesburg Central">
+        </div>
+        <div class="field-group">
+            <label class="bold-label">🚗 VEHICLE</label>
+            <input type="text" id="vehicle" placeholder="e.g., Toyota Hilux, VW Polo">
+        </div>
+        <div class="field-group">
+            <label class="bold-label">🔧 FAULT DESCRIPTION</label>
+            <textarea id="faultDescription" placeholder="Describe the electrical issue"></textarea>
+        </div>
+
+        <div class="section-title">🔧 LABOUR, PARTS & SERVICES</div>
+        <div id="manualItemsContainer" style="grid-column: span 2;"></div>
+        <button type="button" class="manual-add-btn" id="addItemBtn">+ Add Custom Item</button>
+
+        <div class="section-title">💰 ADJUSTMENTS</div>
+        <div class="field-group">
+            <label>➕ Extra charge (call-out fee etc.)</label>
+            <input type="number" id="extraPayment" min="0" step="0.01" placeholder="0.00">
+        </div>
+        <div class="field-group">
+            <label>➖ Discount (R)</label>
+            <input type="number" id="discount" min="0" step="0.01" placeholder="0.00">
+        </div>
+
+        <button class="generate-btn" id="generatePDFBtn">📑 Generate & Share Document</button>
+        <div class="note">
+            ✅ Payment terms: Cash upon completion. Thank you for choosing Salman Auto Electrician.
+        </div>
+    </div>
+</div>
+
 <script>
-(function(){
-if(sessionStorage.getItem("authenticated")!=="true") location.href="./index.html";
-let t;function r(){clearTimeout(t);t=setTimeout(()=>{sessionStorage.removeItem("authenticated");location.href="./index.html"},3e5)}["mousemove","keypress","click","scroll"].forEach(e=>document.addEventListener(e,r));r();window.addEventListener("beforeunload",()=>sessionStorage.removeItem("authenticated"));
-let mode="invoice",paid=!1;
-const invBtn=document.getElementById("invoiceModeBtn"),quoBtn=document.getElementById("quotationModeBtn"),docSpan=document.getElementById("documentTypeLabel"),paidWrap=document.getElementById("paidToggleWrapper"),paidSwitch=document.getElementById("paidToggleSwitch"),manualDiv=document.getElementById("manualItemsContainer"),addBtn=document.getElementById("addItemBtn");
-document.getElementById("documentDate").value=new Date().toISOString().split("T")[0];
-function updateUI(){if(mode==="invoice"){paidWrap.style.display="flex";paid?paidSwitch.classList.add("active"):paidSwitch.classList.remove("active")}else{paidWrap.style.display="none";paid=!1;paidSwitch.classList.remove("active")}}
-function togglePaid(){if(mode==="invoice"){paid=!paid;updateUI()}}
-paidSwitch.onclick=togglePaid;
-function setMode(m){mode=m;if(m==="invoice"){invBtn.classList.add("active");quoBtn.classList.remove("active");docSpan.innerText="INVOICE"}else{quoBtn.classList.add("active");invBtn.classList.remove("active");docSpan.innerText="QUOTATION"}updateUI()}
-invBtn.onclick=()=>setMode("invoice");quoBtn.onclick=()=>setMode("quotation");setMode("invoice");
-function updEmpty(){const m=document.querySelector(".empty-items-message"),has=manualDiv.children.length>0;if(!has&&!m){const e=document.createElement("div");e.className="empty-items-message";e.innerHTML="📭 No items. Click + Add Item.";manualDiv.appendChild(e)}else if(has&&m)m.remove()}
-function addRow(n="",q="",p=""){const d=document.createElement("div");d.className="manual-item-row";d.innerHTML=`<input type="text" class="manual-name" placeholder="Description" value="${n.replace(/[&<>]/g,function(c){return c==='&'?'&amp;':c==='<'?'&lt;':'&gt;';})}"><input type="number" class="manual-qty" min="0" step="1" placeholder="Qty" value="${q}"><input type="number" class="manual-price" min="0" step="0.01" placeholder="Price" value="${p}"><button class="manual-remove-btn">✖</button>`;d.querySelector(".manual-remove-btn").onclick=()=>{d.remove();updEmpty()};return d}
-addBtn.onclick=()=>{manualDiv.appendChild(addRow());updEmpty()};updEmpty();
-document.getElementById("generatePDFBtn").onclick=async()=>{
-const{jsPDF}=window.jspdf,doc=new jsPDF({unit:"mm",format:"a4"});
-const busName="SALMAN AUTO ELECTRICIAN",tel="Tel: 062 210 4835",addr="No. 5, Henry Nxumalo Street, Johannesburg Central",payNote="Cash upon completion of work";
-let client=document.getElementById("clientName").value.trim()||"Walk-in Client",workAddr=document.getElementById("workAddress").value.trim()||addr,vehicle=document.getElementById("vehicle").value.trim()||"—",fault=document.getElementById("faultDescription").value.trim()||"—",rawDate=document.getElementById("documentDate").value,dispDate=rawDate?new Date(rawDate).toLocaleDateString("en-ZA"):new Date().toLocaleDateString("en-ZA"),title=mode==="invoice"?"TAX INVOICE":"QUOTATION";
-const logo=new Image(),paidStamp=new Image(),sign=new Image();
-logo.src="assets/logo.png";paidStamp.src="assets/paid.png";sign.src="assets/signature.png";
-let loaded=0,logoOk=0,paidOk=0,signOk=0;
-function allLoaded(){loaded++;if(loaded===3)build()}
-logo.onload=()=>{logoOk=1;allLoaded()};logo.onerror=()=>{logoOk=0;allLoaded()};
-paidStamp.onload=()=>{paidOk=1;allLoaded()};paidStamp.onerror=()=>{paidOk=0;allLoaded()};
-sign.onload=()=>{signOk=1;allLoaded()};sign.onerror=()=>{signOk=0;allLoaded()};
-setTimeout(()=>{if(loaded<3){loaded=3;build()}},500);
-function build(){
-try{
-if(logoOk&&logo.complete&&logo.naturalWidth>0){doc.addImage(logo,"PNG",10,8,22,18);doc.setFontSize(11);doc.setFont(undefined,"bold");doc.text(busName,38,14);doc.setFontSize(6.5);doc.setFont(undefined,"normal");doc.text(tel,38,20);doc.text(addr,38,25)}else{doc.setFontSize(12);doc.setFont(undefined,"bold");doc.text(busName,15,14);doc.setFontSize(6.5);doc.text(tel,15,20);doc.text(addr,15,25)}
-doc.setFontSize(10);doc.setFont(undefined,"bold");doc.text(title,155,12);doc.setFontSize(6.5);doc.text(`Date: ${dispDate}`,155,19);
-let y=36;doc.line(10,y,200,y);y+=5;
-doc.setFontSize(7.5);doc.setFont(undefined,"bold");doc.text("CLIENT:",10,y);doc.setFont(undefined,"normal");doc.text(client,40,y);y+=4.5;
-doc.setFont(undefined,"bold");doc.text("SERVICE ADDRESS:",10,y);doc.setFont(undefined,"normal");let aL=doc.splitTextToSize(workAddr,140);doc.text(aL,40,y);y+=aL.length*4;
-doc.setFont(undefined,"bold");doc.text("VEHICLE:",10,y);doc.setFont(undefined,"normal");doc.text(vehicle,40,y);y+=4.5;
-if(fault!=="—"){doc.setFont(undefined,"bold");doc.text("FAULT:",10,y);doc.setFont(undefined,"normal");let fL=doc.splitTextToSize(fault,140);doc.text(fL,40,y);y+=fL.length*4}
-y+=3;doc.line(10,y,200,y);y+=4;
-doc.setFont(undefined,"bold");doc.text("DESCRIPTION",10,y);doc.text("QTY",120,y);doc.text("PRICE",145,y);doc.text("TOTAL",175,y);y+=2;doc.line(10,y,200,y);y+=4;
-let total=0,rows=document.querySelectorAll("#manualItemsContainer .manual-item-row");
-for(let r of rows){let dsc=r.querySelector(".manual-name")?.value.trim()||"",qty=parseInt(r.querySelector(".manual-qty")?.value)||0,prc=parseFloat(r.querySelector(".manual-price")?.value)||0;if(qty>0&&prc>0){let sum=qty*prc;total+=sum;if(y>265){doc.addPage();y=20;doc.setFont(undefined,"bold");doc.text("DESCRIPTION",10,y);doc.text("QTY",120,y);doc.text("PRICE",145,y);doc.text("TOTAL",175,y);y+=2;doc.line(10,y,200,y);y+=4}doc.setFontSize(6.5);let sd=dsc.length>40?dsc.slice(0,37)+"...":dsc;doc.text(sd,10,y);doc.text(qty.toString(),120,y);doc.text("R"+prc.toFixed(2),145,y);doc.text("R"+sum.toFixed(2),175,y);y+=3.5}}
-let extra=parseFloat(document.getElementById("extraPayment").value)||0,disc=parseFloat(document.getElementById("discount").value)||0;
-if(extra>0){total+=extra;if(y>265){doc.addPage();y=20}doc.text("Extra charge",10,y);doc.text("1",120,y);doc.text("R"+extra.toFixed(2),145,y);doc.text("R"+extra.toFixed(2),175,y);y+=3.5}
-if(disc>0){total-=disc;if(y>265){doc.addPage();y=20}doc.text("Discount",10,y);doc.text("-",120,y);doc.text("R"+disc.toFixed(2),175,y);y+=3.5}
-doc.line(145,y,200,y);y+=3;doc.setFont(undefined,"bold");doc.setFontSize(9);let td=(mode==="invoice"&&paid)?`TOTAL (PAID): R${total.toFixed(2)}`:`TOTAL: R${total.toFixed(2)}`;doc.text(td,150,y);y+=8;
-let ph=doc.internal.pageSize.height,ft=ph-36;if(y+20>ph){doc.addPage();ft=20}else ft=Math.max(y+5,ph-38);
-doc.setFontSize(6.5);doc.setFont(undefined,"bold");doc.text("PAYMENT TERMS",10,ft);doc.setFont(undefined,"normal");doc.text(payNote,10,ft+4);doc.text("Settle upon job completion. Thank you!",10,ft+8);
-if(signOk&&sign.complete&&sign.naturalWidth>0){doc.addImage(sign,"PNG",150,ft+12,32,9);doc.setFontSize(5);doc.text("Authorised signature",158,ft+24)}else{doc.line(150,ft+18,198,ft+18);doc.text("Authorised signature",158,ft+22)}
-if(mode==="invoice"&&paid&&paidOk&&paidStamp.complete&&paidStamp.naturalWidth>0)doc.addImage(paidStamp,"PNG",140,ft-6,28,11);
-else if(mode==="invoice"&&paid){doc.setFontSize(7);doc.setTextColor(40,100,40);doc.text("✓ PAID",152,ft-2);doc.setTextColor(0,0,0)}
-const blob=doc.output("blob"),fn=`${mode==="invoice"?"Invoice":"Quotation"}_${client.replace(/\s/g,"_")}_${dispDate.replace(/\//g,"-")}.pdf`,url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=fn;a.click();if(navigator.canShare&&navigator.canShare({files:[new File([blob],fn,{type:"application/pdf"})]}))navigator.share({title:title+" from Salman Auto Electrician",files:[new File([blob],fn,{type:"application/pdf"})]}).catch(()=>{});URL.revokeObjectURL(url)
-}catch(e){alert("PDF error. Check assets folder.")}}
-}}})();
+    if (sessionStorage.getItem("authenticated") !== "true") {
+        window.location.href = "./index.html";
+    }
+
+    let idleTimer;
+    function resetIdleTimer() {
+        clearTimeout(idleTimer);
+        idleTimer = setTimeout(() => {
+            sessionStorage.removeItem("authenticated");
+            window.location.href = "./index.html";
+        }, 300000);
+    }
+    window.addEventListener("mousemove", resetIdleTimer);
+    window.addEventListener("keypress", resetIdleTimer);
+    window.addEventListener("click", resetIdleTimer);
+    window.addEventListener("scroll", resetIdleTimer);
+    resetIdleTimer();
+
+    window.addEventListener("beforeunload", () => {
+        sessionStorage.removeItem("authenticated");
+    });
+
+    let currentMode = "invoice";
+    let isPaid = false;
+
+    const invoiceModeBtn = document.getElementById("invoiceModeBtn");
+    const quotationModeBtn = document.getElementById("quotationModeBtn");
+    const docTypeSpan = document.getElementById("documentTypeLabel");
+    const paidWrapper = document.getElementById("paidToggleWrapper");
+    const paidToggleSwitch = document.getElementById("paidToggleSwitch");
+    const manualContainer = document.getElementById("manualItemsContainer");
+    const addItemBtn = document.getElementById("addItemBtn");
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    document.getElementById("documentDate").value = todayStr;
+
+    function updateEmptyMessage() {
+        const existingMsg = document.querySelector(".empty-items-message");
+        const hasItems = manualContainer.children.length > 0;
+        
+        if (!hasItems && !existingMsg) {
+            const emptyMsg = document.createElement("div");
+            emptyMsg.className = "empty-items-message";
+            emptyMsg.id = "emptyItemsMessage";
+            emptyMsg.innerHTML = "📭 No items added. Click above to add services, parts or labour.";
+            manualContainer.appendChild(emptyMsg);
+        } else if (hasItems && existingMsg) {
+            existingMsg.remove();
+        }
+    }
+
+    function updatePaidToggleUI() {
+        if (currentMode === "invoice") {
+            paidWrapper.style.display = "flex";
+            if (isPaid) {
+                paidToggleSwitch.classList.add("active");
+            } else {
+                paidToggleSwitch.classList.remove("active");
+            }
+        } else {
+            paidWrapper.style.display = "none";
+            isPaid = false;
+            paidToggleSwitch.classList.remove("active");
+        }
+    }
+
+    function togglePaidStatus() {
+        if (currentMode !== "invoice") return;
+        isPaid = !isPaid;
+        updatePaidToggleUI();
+    }
+    paidToggleSwitch.addEventListener("click", togglePaidStatus);
+
+    function setMode(mode) {
+        currentMode = mode;
+        if (mode === "invoice") {
+            invoiceModeBtn.classList.add("active");
+            quotationModeBtn.classList.remove("active");
+            docTypeSpan.innerText = "INVOICE";
+        } else {
+            quotationModeBtn.classList.add("active");
+            invoiceModeBtn.classList.remove("active");
+            docTypeSpan.innerText = "QUOTATION";
+        }
+        updatePaidToggleUI();
+    }
+
+    invoiceModeBtn.addEventListener("click", () => setMode("invoice"));
+    quotationModeBtn.addEventListener("click", () => setMode("quotation"));
+    setMode("invoice");
+
+    function escapeHtml(str) {
+        if (!str) return "";
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    function createManualRow(itemName = "", quantity = "", unitPrice = "") {
+        const rowDiv = document.createElement("div");
+        rowDiv.className = "manual-item-row";
+        rowDiv.innerHTML = `
+            <input type="text" class="manual-name" placeholder="Description (Alternator, Starter, wiring)" value="${escapeHtml(itemName)}">
+            <input type="number" class="manual-qty" min="0" step="1" placeholder="Qty" value="${quantity}">
+            <input type="number" class="manual-price" min="0" step="0.01" placeholder="Unit (R)" value="${unitPrice}">
+            <button type="button" class="manual-remove-btn">✖ Remove</button>
+        `;
+        const removeBtn = rowDiv.querySelector(".manual-remove-btn");
+        removeBtn.addEventListener("click", () => {
+            rowDiv.remove();
+            updateEmptyMessage();
+        });
+        return rowDiv;
+    }
+
+    function addManualItem(optName = "", optQty = "", optPrice = "") {
+        const newRow = createManualRow(optName, optQty, optPrice);
+        manualContainer.appendChild(newRow);
+        updateEmptyMessage();
+    }
+
+    updateEmptyMessage();
+
+    addItemBtn.addEventListener("click", () => {
+        addManualItem("", "", "");
+    });
+
+    async function generatePDF() {
+        const { jsPDF } = window.jspdf;
+        // Optimized layout: smaller margins, more compact font sizing to reduce total pages/white space
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true, lineHeight: 1.15 });
+        
+        const businessName = "SALMAN AUTO ELECTRICIAN";
+        const telInfo = "Tel: 062 210 4835";
+        const addressLine = "No. 5, Henry Nxumalo Street, Johannesburg Central";
+        const paymentNote = "Cash upon completion of work";
+
+        let clientName = document.getElementById("clientName").value.trim();
+        if (clientName === "") clientName = "Walk-in Client";
+        let workAddr = document.getElementById("workAddress").value.trim() || addressLine;
+        let vehicle = document.getElementById("vehicle").value.trim() || "—";
+        let faultDesc = document.getElementById("faultDescription").value.trim() || "—";
+        let rawDate = document.getElementById("documentDate").value;
+        let displayDate = rawDate ? new Date(rawDate).toLocaleDateString("en-ZA") : new Date().toLocaleDateString("en-ZA");
+        let docTitle = currentMode === "invoice" ? "TAX INVOICE" : "QUOTATION";
+        
+        const logoImg = new Image();
+        const paidStamp = new Image();
+        const signatureImg = new Image();
+        
+        logoImg.src = "assets/logo.png";
+        paidStamp.src = "assets/paid.png";
+        signatureImg.src = "assets/signature.png";
+        
+        let imagesLoaded = 0;
+        let logoLoaded = false;
+        let paidLoaded = false;
+        let signatureLoaded = false;
+        
+        function checkAllLoaded() {
+            imagesLoaded++;
+            if (imagesLoaded === 3) {
+                buildCompactPDF();
+            }
+        }
+        
+        logoImg.onload = () => { logoLoaded = true; checkAllLoaded(); };
+        logoImg.onerror = () => { logoLoaded = false; checkAllLoaded(); };
+        paidStamp.onload = () => { paidLoaded = true; checkAllLoaded(); };
+        paidStamp.onerror = () => { paidLoaded = false; checkAllLoaded(); };
+        signatureImg.onload = () => { signatureLoaded = true; checkAllLoaded(); };
+        signatureImg.onerror = () => { signatureLoaded = false; checkAllLoaded(); };
+        
+        setTimeout(() => {
+            if (imagesLoaded < 3) {
+                imagesLoaded = 3;
+                buildCompactPDF();
+            }
+        }, 600);
+        
+        function buildCompactPDF() {
+            try {
+                // ========== COMPACT HEADER ==========
+                const startY = 14;
+                let yCursor = startY;
+                
+                if (logoLoaded && logoImg.complete && logoImg.naturalWidth > 0) {
+                    doc.addImage(logoImg, "PNG", 8, 6, 22, 18);
+                    doc.setFontSize(11);
+                    doc.setFont(undefined, "bold");
+                    doc.text(businessName, 34, 12);
+                    doc.setFontSize(6.5);
+                    doc.setFont(undefined, "normal");
+                    doc.text(telInfo, 34, 17);
+                    doc.text(addressLine, 34, 21.5);
+                    yCursor = 28;
+                } else {
+                    doc.setFontSize(13);
+                    doc.setFont(undefined, "bold");
+                    doc.text(businessName, 12, 12);
+                    doc.setFontSize(7);
+                    doc.setFont(undefined, "normal");
+                    doc.text(telInfo, 12, 18);
+                    doc.text(addressLine, 12, 23);
+                    yCursor = 30;
+                }
+                
+                // Title + date on right side
+                doc.setFontSize(9);
+                doc.setFont(undefined, "bold");
+                doc.text(docTitle, 158, 12);
+                doc.setFontSize(6.5);
+                doc.setFont(undefined, "normal");
+                doc.text(`Date: ${displayDate}`, 158, 18);
+                
+                // divider line
+                doc.line(8, yCursor, 202, yCursor);
+                yCursor += 4;
+                
+                // Client & info compact spacing
+                doc.setFontSize(7);
+                doc.setFont(undefined, "bold");
+                doc.text("CLIENT:", 8, yCursor);
+                doc.setFont(undefined, "normal");
+                doc.text(clientName, 35, yCursor);
+                yCursor += 4.5;
+                
+                doc.setFont(undefined, "bold");
+                doc.text("ADDRESS:", 8, yCursor);
+                doc.setFont(undefined, "normal");
+                const addrLines = doc.splitTextToSize(workAddr, 125);
+                doc.text(addrLines, 35, yCursor);
+                yCursor += (addrLines.length * 3.8);
+                
+                doc.setFont(undefined, "bold");
+                doc.text("VEHICLE:", 8, yCursor);
+                doc.setFont(undefined, "normal");
+                doc.text(vehicle, 35, yCursor);
+                yCursor += 4.2;
+                
+                if (faultDesc !== "—") {
+                    doc.setFont(undefined, "bold");
+                    doc.text("FAULT:", 8, yCursor);
+                    doc.setFont(undefined, "normal");
+                    const faultLines = doc.splitTextToSize(faultDesc, 125);
+                    doc.text(faultLines, 35, yCursor);
+                    yCursor += (faultLines.length * 3.8);
+                }
+                
+                yCursor += 2.5;
+                doc.line(8, yCursor, 202, yCursor);
+                yCursor += 4;
+                
+                // Table headers compact
+                doc.setFontSize(7.5);
+                doc.setFont(undefined, "bold");
+                doc.text("DESCRIPTION", 8, yCursor);
+                doc.text("QTY", 125, yCursor);
+                doc.text("PRICE (R)", 145, yCursor);
+                doc.text("TOTAL (R)", 172, yCursor);
+                doc.setFont(undefined, "normal");
+                yCursor += 1.8;
+                doc.line(8, yCursor, 202, yCursor);
+                yCursor += 4.2;
+                
+                let grandTotal = 0;
+                
+                // Process manual items more tightly
+                const allRows = document.querySelectorAll("#manualItemsContainer .manual-item-row");
+                for (let row of allRows) {
+                    const descElem = row.querySelector(".manual-name");
+                    const qtyElem = row.querySelector(".manual-qty");
+                    const priceElem = row.querySelector(".manual-price");
+                    let desc = descElem ? descElem.value.trim() : "";
+                    if (desc === "") desc = "Unnamed service";
+                    let qty = qtyElem ? parseInt(qtyElem.value) : 0;
+                    let price = priceElem ? parseFloat(priceElem.value) : 0;
+                    if (isNaN(qty)) qty = 0;
+                    if (isNaN(price)) price = 0;
+                    if (qty > 0 && price > 0) {
+                        let total = qty * price;
+                        grandTotal += total;
+                        
+                        if (yCursor > 270) {
+                            doc.addPage();
+                            yCursor = 18;
+                            doc.setFontSize(7.5);
+                            doc.setFont(undefined, "bold");
+                            doc.text("DESCRIPTION", 8, yCursor);
+                            doc.text("QTY", 125, yCursor);
+                            doc.text("PRICE (R)", 145, yCursor);
+                            doc.text("TOTAL (R)", 172, yCursor);
+                            doc.setFont(undefined, "normal");
+                            yCursor += 2;
+                            doc.line(8, yCursor, 202, yCursor);
+                            yCursor += 4;
+                        }
+                        
+                        doc.setFontSize(7);
+                        let shortDesc = desc.length > 48 ? desc.substring(0, 45) + "..." : desc;
+                        doc.text(shortDesc, 8, yCursor);
+                        doc.text(qty.toString(), 125, yCursor);
+                        doc.text("R" + price.toFixed(2), 145, yCursor);
+                        doc.text("R" + total.toFixed(2), 172, yCursor);
+                        yCursor += 3.8;
+                    }
+                }
+                
+                let extra = parseFloat(document.getElementById("extraPayment").value) || 0;
+                let discount = parseFloat(document.getElementById("discount").value) || 0;
+                
+                if (extra > 0) {
+                    grandTotal += extra;
+                    if (yCursor > 268) { doc.addPage(); yCursor = 20; doc.setFontSize(7); }
+                    doc.setFontSize(7);
+                    doc.text("Extra charge / adjustment", 8, yCursor);
+                    doc.text("1", 125, yCursor);
+                    doc.text("R" + extra.toFixed(2), 145, yCursor);
+                    doc.text("R" + extra.toFixed(2), 172, yCursor);
+                    yCursor += 3.8;
+                }
+                
+                if (discount > 0) {
+                    grandTotal -= discount;
+                    if (yCursor > 268) { doc.addPage(); yCursor = 20; }
+                    doc.setFontSize(7);
+                    doc.text("Discount applied", 8, yCursor);
+                    doc.text("-", 125, yCursor);
+                    doc.text("R" + discount.toFixed(2), 172, yCursor);
+                    yCursor += 3.8;
+                }
+                
+                doc.line(145, yCursor, 202, yCursor);
+                yCursor += 3.5;
+                doc.setFont(undefined, "bold");
+                doc.setFontSize(9);
+                let totalDisplay = (currentMode === "invoice" && isPaid) ? `TOTAL (PAID): R${grandTotal.toFixed(2)}` : `TOTAL: R${grandTotal.toFixed(2)}`;
+                doc.text(totalDisplay, 155, yCursor);
+                doc.setFont(undefined, "normal");
+                yCursor += 6.5;
+                
+                // ----- Compact footer & signature area (less wasted space)
+                let pageHeight = doc.internal.pageSize.height;
+                let footerBaseY = Math.max(yCursor + 2, pageHeight - 34);
+                if (footerBaseY + 28 > pageHeight) {
+                    doc.addPage();
+                    footerBaseY = 20;
+                }
+                
+                doc.setFontSize(7);
+                doc.setFont(undefined, "bold");
+                doc.text("PAYMENT TERMS", 8, footerBaseY);
+                doc.setFont(undefined, "normal");
+                doc.text(paymentNote, 8, footerBaseY + 4);
+                doc.text("No bank deposit – settle after completion", 8, footerBaseY + 7.5);
+                doc.text("Thank you for trusting Salman Auto Electrician.", 8, footerBaseY + 11);
+                
+                // Signature area - compact but elegant
+                if (signatureLoaded && signatureImg.complete && signatureImg.naturalWidth > 0) {
+                    try {
+                        doc.addImage(signatureImg, "PNG", 148, footerBaseY + 8, 32, 8);
+                    } catch(e) {}
+                    doc.setFontSize(5.5);
+                    doc.text("Authorised signature", 156, footerBaseY + 19);
+                } else {
+                    doc.line(148, footerBaseY + 13, 200, footerBaseY + 13);
+                    doc.setFontSize(5.5);
+                    doc.text("Authorised signature", 156, footerBaseY + 17);
+                }
+                
+                // Paid stamp – placed inside footer region not overlapping content
+                if (currentMode === "invoice" && isPaid && paidLoaded && paidStamp.complete && paidStamp.naturalWidth > 0) {
+                    try {
+                        doc.addImage(paidStamp, "PNG", 140, footerBaseY - 5, 28, 10);
+                    } catch(e) {}
+                } else if (currentMode === "invoice" && isPaid) {
+                    doc.setFontSize(7);
+                    doc.setTextColor(0, 100, 0);
+                    doc.text("✓ PAID IN FULL", 155, footerBaseY - 2);
+                    doc.setTextColor(0, 0, 0);
+                }
+                
+                // Tiny reference at bottom edge
+                doc.setFontSize(5.5);
+                doc.setTextColor(100,100,100);
+                doc.text("Salman Auto Electrician – Quality repairs. Cash on completion.", 8, pageHeight - 5);
+                doc.setTextColor(0,0,0);
+                
+                // ----- Compact PDF output & sharing -----
+                const pdfBlob = doc.output("blob");
+                const fileName = `${currentMode === "invoice" ? "Invoice" : "Quotation"}_${clientName.replace(/\s+/g, '_').substring(0,20)}_${displayDate.replace(/\//g, '-')}.pdf`;
+                const pdfUrl = URL.createObjectURL(pdfBlob);
+                const link = document.createElement("a");
+                link.href = pdfUrl;
+                link.download = fileName;
+                link.click();
+                
+                if (navigator.canShare && navigator.canShare({ files: [new File([pdfBlob], fileName, { type: "application/pdf" })] })) {
+                    navigator.share({
+                        title: docTitle + " from Salman Auto Electrician",
+                        files: [new File([pdfBlob], fileName, { type: "application/pdf" })]
+                    }).catch(() => {});
+                }
+                URL.revokeObjectURL(pdfUrl);
+            } catch(err) {
+                console.error("PDF compact error:", err);
+                alert("Could not generate PDF. Make sure assets folder contains logo/paid/signature (optional) or retry.");
+            }
+        }
+    }
+    
+    const generateBtn = document.getElementById("generatePDFBtn");
+    generateBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        generatePDF();
+    });
 </script>
 </body>
 </html>
