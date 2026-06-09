@@ -22,7 +22,6 @@
             padding: 16px;
         }
 
-        /* main card container */
         .card {
             max-width: 1000px;
             width: 100%;
@@ -93,7 +92,6 @@
             color: #1e4a5f;
         }
 
-        /* paid toggle (only visible for invoice mode) */
         .paid-toggle-container {
             display: flex;
             justify-content: center;
@@ -146,7 +144,6 @@
             font-size: 0.9rem;
         }
 
-        /* form layout */
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -166,16 +163,22 @@
             letter-spacing: 0.3px;
         }
 
-        input, select {
+        input, select, textarea {
             padding: 8px 12px;
             border: 1.5px solid #dce3ec;
             border-radius: 16px;
             font-size: 0.9rem;
             background: #fff;
             transition: 0.2s;
+            font-family: inherit;
         }
 
-        input:focus, select:focus {
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: #2c7a6e;
             box-shadow: 0 0 0 3px rgba(17,127,111,0.15);
@@ -256,6 +259,18 @@
             background: #a51e22;
         }
 
+        .empty-items-message {
+            grid-column: span 2;
+            text-align: center;
+            padding: 20px;
+            color: #8ba0b5;
+            font-size: 0.85rem;
+            background: #fafcfd;
+            border-radius: 24px;
+            border: 1px dashed #cbdbe2;
+            margin-bottom: 10px;
+        }
+
         .note {
             grid-column: span 2;
             font-size: 0.7rem;
@@ -281,6 +296,9 @@
             .form-grid {
                 grid-template-columns: 1fr;
             }
+            .empty-items-message {
+                grid-column: span 1;
+            }
         }
     </style>
 </head>
@@ -298,7 +316,6 @@
         <span class="doc-badge" id="documentTypeLabel">Invoice</span>
     </div>
 
-    <!-- PAID toggle (invoice only) -->
     <div id="paidToggleWrapper" class="paid-toggle-container">
         <span class="paid-label">✓ Mark as PAID (invoice)</span>
         <div id="paidToggleSwitch" class="toggle-switch">
@@ -317,19 +334,21 @@
         </div>
         <div class="field-group" style="grid-column: span 2;">
             <label>📍 Service / Work Address</label>
-            <input type="text" id="workAddress" placeholder="Workshop location or customer address">
+            <input type="text" id="workAddress" placeholder="Workshop location or customer address" value="No. 5, Henry Nxumalo Street, Johannesburg Central (Close to Shell Garage)">
         </div>
-        <div class="field-group" style="grid-column: span 2;">
-            <label>🚗 Vehicle / Job Reference (optional)</label>
-            <input type="text" id="vehicleRef" placeholder="e.g., Toyota Hilux / Alternator issue">
+        <div class="field-group">
+            <label>🚗 Vehicle</label>
+            <input type="text" id="vehicle" placeholder="e.g., Toyota Hilux, VW Polo, BMW 3 Series">
+        </div>
+        <div class="field-group">
+            <label>🔧 Fault Description</label>
+            <textarea id="faultDescription" placeholder="Describe the electrical issue (e.g., alternator not charging, starter motor clicking, battery draining, lights flickering...)"></textarea>
         </div>
 
-        <!-- ✏️ CUSTOM ITEMS SECTION (MANUAL ONLY) -->
         <div class="section-title">🔧 LABOUR, PARTS & SERVICES</div>
         <div id="manualItemsContainer" style="grid-column: span 2;"></div>
         <button type="button" class="manual-add-btn" id="addItemBtn">+ Add Custom Item (part / labour / diagnostic)</button>
 
-        <!-- Adjustments (extra / discount) -->
         <div class="section-title">💰 ADJUSTMENTS</div>
         <div class="field-group">
             <label>➕ Extra charge (e.g., call-out fee)</label>
@@ -348,7 +367,6 @@
 </div>
 
 <script>
-    // ---------- SESSION AUTHENTICATION GUARD (from original pattern) ----------
     if (sessionStorage.getItem("authenticated") !== "true") {
         window.location.href = "./index.html";
     }
@@ -359,7 +377,7 @@
         idleTimer = setTimeout(() => {
             sessionStorage.removeItem("authenticated");
             window.location.href = "./index.html";
-        }, 300000); // 5 minutes
+        }, 300000);
     }
     window.addEventListener("mousemove", resetIdleTimer);
     window.addEventListener("keypress", resetIdleTimer);
@@ -371,11 +389,9 @@
         sessionStorage.removeItem("authenticated");
     });
 
-    // ---------- GLOBALS ----------
-    let currentMode = "invoice";      // 'invoice' or 'quotation'
-    let isPaid = false;               // only for invoice mode
+    let currentMode = "invoice";
+    let isPaid = false;
 
-    // DOM elements
     const invoiceModeBtn = document.getElementById("invoiceModeBtn");
     const quotationModeBtn = document.getElementById("quotationModeBtn");
     const docTypeSpan = document.getElementById("documentTypeLabel");
@@ -384,11 +400,24 @@
     const manualContainer = document.getElementById("manualItemsContainer");
     const addItemBtn = document.getElementById("addItemBtn");
 
-    // ----- Helper: Date default today -----
     const todayStr = new Date().toISOString().split('T')[0];
     document.getElementById("documentDate").value = todayStr;
 
-    // ----- toggle PAID UI -----
+    function updateEmptyMessage() {
+        const existingMsg = document.querySelector(".empty-items-message");
+        const hasItems = manualContainer.children.length > 0;
+        
+        if (!hasItems && !existingMsg) {
+            const emptyMsg = document.createElement("div");
+            emptyMsg.className = "empty-items-message";
+            emptyMsg.id = "emptyItemsMessage";
+            emptyMsg.innerHTML = "📭 No items added yet. Click the button above to add services, parts, or labour.";
+            manualContainer.appendChild(emptyMsg);
+        } else if (hasItems && existingMsg) {
+            existingMsg.remove();
+        }
+    }
+
     function updatePaidToggleUI() {
         if (currentMode === "invoice") {
             paidWrapper.style.display = "flex";
@@ -411,7 +440,6 @@
     }
     paidToggleSwitch.addEventListener("click", togglePaidStatus);
 
-    // ----- mode switcher -----
     function setMode(mode) {
         currentMode = mode;
         if (mode === "invoice") {
@@ -428,10 +456,17 @@
 
     invoiceModeBtn.addEventListener("click", () => setMode("invoice"));
     quotationModeBtn.addEventListener("click", () => setMode("quotation"));
-    setMode("invoice");   // default
+    setMode("invoice");
 
-    // ----- MANUAL ITEMS MANAGEMENT (dynamic, no preset products)-----
-    let manualItemCounter = 0;
+    function escapeHtml(str) {
+        if (!str) return "";
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
 
     function createManualRow(itemName = "", quantity = "", unitPrice = "") {
         const rowDiv = document.createElement("div");
@@ -445,6 +480,7 @@
         const removeBtn = rowDiv.querySelector(".manual-remove-btn");
         removeBtn.addEventListener("click", () => {
             rowDiv.remove();
+            updateEmptyMessage();
         });
         return rowDiv;
     }
@@ -452,82 +488,68 @@
     function addManualItem(optName = "", optQty = "", optPrice = "") {
         const newRow = createManualRow(optName, optQty, optPrice);
         manualContainer.appendChild(newRow);
+        updateEmptyMessage();
     }
 
-    // small helper to escape HTML for pre-filled values
-    function escapeHtml(str) {
-        if (!str) return "";
-        return str.replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        });
-    }
+    // NO DEFAULT ITEMS - container starts completely empty
+    updateEmptyMessage();
 
-    // add initial rows to show example items (auto electrician themed)
-    addManualItem("Alternator diagnostic & repair", "1", "850.00");
-    addManualItem("Starter motor replacement", "1", "1250.00");
-    addManualItem("Battery testing & electrical check", "1", "350.00");
-
-    // add new empty row when clicking add button
     addItemBtn.addEventListener("click", () => {
         addManualItem("", "", "");
     });
 
-    // --------------------------------------------------------------
-    // PDF GENERATION with NEW business info (Salman Auto Electrician)
-    // --------------------------------------------------------------
     async function generatePDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
 
-        // ----- UPDATED BUSINESS DETAILS -----
         const businessName = "SALMAN AUTO ELECTRICIAN";
         const telInfo = "Tel: 062 210 4835";
         const addressLine = "No. 5, Henry Nxumalo Street, Johannesburg Central (Close to Shell Garage)";
-        const paymentNote = "Cash upon completion of work";   // banking details replaced
-        
-        // document client & meta
+        const paymentNote = "Cash upon completion of work";
+
         let clientName = document.getElementById("clientName").value.trim();
         if (clientName === "") clientName = "Walk-in Client";
-        let workAddr = document.getElementById("workAddress").value.trim() || "Workshop address as above";
-        let vehicleRef = document.getElementById("vehicleRef").value.trim() || "—";
+        let workAddr = document.getElementById("workAddress").value.trim() || addressLine;
+        let vehicle = document.getElementById("vehicle").value.trim() || "—";
+        let faultDesc = document.getElementById("faultDescription").value.trim() || "—";
         let rawDate = document.getElementById("documentDate").value;
         let displayDate = rawDate ? new Date(rawDate).toLocaleDateString("en-ZA") : new Date().toLocaleDateString("en-ZA");
         let docTitle = currentMode === "invoice" ? "TAX INVOICE" : "QUOTATION";
         
-        // Prepare images for logo & optional paid stamp
         const logoImg = new Image();
         const paidStamp = new Image();
-        // We'll keep assets path optional: but we use dummy safe loading
-        logoImg.src = "assets/logo.jpeg";
+        const signatureImg = new Image();
+        
+        logoImg.src = "assets/logo.png";
         paidStamp.src = "assets/paid.png";
-        // signature removed as not needed but keep fallback style
+        signatureImg.src = "assets/signature.png";
+        
         let imagesLoaded = 0;
         let logoAvailable = false;
         let paidAvailable = false;
+        let signatureAvailable = false;
         
         function imageLoadHandler() {
             imagesLoaded++;
-            if (imagesLoaded === 2) {
+            if (imagesLoaded === 3) {
                 buildFinalPDF();
             }
         }
+        
         logoImg.onload = () => { logoAvailable = true; imageLoadHandler(); };
         logoImg.onerror = () => { logoAvailable = false; imageLoadHandler(); };
         paidStamp.onload = () => { paidAvailable = true; imageLoadHandler(); };
         paidStamp.onerror = () => { paidAvailable = false; imageLoadHandler(); };
+        signatureImg.onload = () => { signatureAvailable = true; imageLoadHandler(); };
+        signatureImg.onerror = () => { signatureAvailable = false; imageLoadHandler(); };
         
-        // fallback in case images take too long
         setTimeout(() => {
-            if (imagesLoaded < 2) {
-                imagesLoaded = 2;
+            if (imagesLoaded < 3) {
+                imagesLoaded = 3;
                 buildFinalPDF();
             }
         }, 600);
         
-        // helper functions for layout
         let yCursor = 32;
         let grandTotal = 0;
         
@@ -562,9 +584,8 @@
         
         function buildFinalPDF() {
             try {
-                // --- Header with logo if exists
                 if (logoAvailable && logoImg.complete && logoImg.naturalWidth > 0) {
-                    doc.addImage(logoImg, "JPEG", 8, 6, 22, 16);
+                    doc.addImage(logoImg, "PNG", 8, 6, 22, 16);
                     doc.setFontSize(12);
                     doc.setFont(undefined, "bold");
                     doc.text(businessName, 35, 12);
@@ -581,7 +602,7 @@
                     doc.text(telInfo, 15, 20);
                     doc.text(addressLine, 15, 25);
                 }
-                // right side title & date
+                
                 doc.setFontSize(12);
                 doc.setFont(undefined, "bold");
                 doc.text(docTitle, 155, 12);
@@ -601,13 +622,21 @@
                 doc.text("Service Address:", 8, yCursor);
                 doc.text(workAddr, 30, yCursor);
                 yCursor += 4;
-                doc.text("Vehicle / Job:", 8, yCursor);
-                doc.text(vehicleRef, 30, yCursor);
-                yCursor += 6;
+                doc.text("Vehicle:", 8, yCursor);
+                doc.text(vehicle, 30, yCursor);
+                yCursor += 4;
+                
+                if (faultDesc !== "—") {
+                    doc.text("Fault Description:", 8, yCursor);
+                    const splitFault = doc.splitTextToSize(faultDesc, 160);
+                    doc.text(splitFault, 30, yCursor);
+                    yCursor += (splitFault.length * 4);
+                }
+                
+                yCursor += 2;
                 doc.line(8, yCursor, 202, yCursor);
                 yCursor += 4;
                 
-                // table headers
                 doc.setFont(undefined, "bold");
                 doc.text("Description", 8, yCursor);
                 doc.text("Qty", 120, yCursor);
@@ -620,7 +649,6 @@
                 
                 grandTotal = 0;
                 
-                // ---- COLLECT MANUAL ITEMS ----
                 const allRows = document.querySelectorAll("#manualItemsContainer .manual-item-row");
                 for (let row of allRows) {
                     const descElem = row.querySelector(".manual-name");
@@ -637,14 +665,12 @@
                     }
                 }
                 
-                // Extra payment and discount
                 let extra = parseFloat(document.getElementById("extraPayment").value) || 0;
                 let discount = parseFloat(document.getElementById("discount").value) || 0;
                 if (extra > 0) {
                     addItemRow("➕ Extra charge / adjustment", 1, extra);
                 }
                 if (discount > 0) {
-                    // discount row as negative addition
                     checkPageOverflow();
                     doc.setFontSize(7.5);
                     doc.text("Discount (applied)", 8, yCursor);
@@ -654,7 +680,6 @@
                     grandTotal -= discount;
                 }
                 
-                // Total line
                 doc.line(145, yCursor, 202, yCursor);
                 yCursor += 4;
                 doc.setFont(undefined, "bold");
@@ -664,15 +689,15 @@
                 doc.setFont(undefined, "normal");
                 yCursor += 8;
                 
-                // ---- PAYMENT TERMS / BANKING REPLACED (cash upon completion)----
                 let pageHeight = doc.internal.pageSize.height;
-                let termsY = pageHeight - 34;
+                let termsY = pageHeight - 38;
                 if (yCursor + 20 > pageHeight) {
                     doc.addPage();
                     termsY = 20;
                 } else {
-                    termsY = Math.max(yCursor + 8, pageHeight - 34);
+                    termsY = Math.max(yCursor + 8, pageHeight - 38);
                 }
+                
                 doc.setFontSize(8);
                 doc.setFont(undefined, "bold");
                 doc.text("Payment Terms", 8, termsY);
@@ -681,17 +706,25 @@
                 doc.text("No bank deposit required – settle upon job completion.", 8, termsY + 8);
                 doc.text("Thank you for trusting Salman Auto Electrician.", 8, termsY + 12);
                 
-                // Contact footer
-                doc.setFontSize(7);
-                doc.text(`📞 ${telInfo} | 📍 ${addressLine.substring(0, 50)}`, 8, termsY + 18);
+                if (signatureAvailable && signatureImg.complete && signatureImg.naturalWidth > 0) {
+                    try {
+                        doc.addImage(signatureImg, "PNG", 150, termsY + 16, 35, 10);
+                    } catch(e) {}
+                    doc.setFontSize(6);
+                    doc.text("Authorised signature", 158, termsY + 28);
+                } else {
+                    doc.line(150, termsY + 22, 200, termsY + 22);
+                    doc.setFontSize(6);
+                    doc.text("Authorised signature", 158, termsY + 26);
+                }
                 
-                // paid stamp for invoice if marked paid
+                doc.setFontSize(7);
+                doc.text(`📞 ${telInfo} | ${addressLine.substring(0, 55)}`, 8, termsY + 32);
+                
                 if (currentMode === "invoice" && isPaid && paidAvailable && paidStamp.complete && paidStamp.naturalWidth > 0) {
                     try {
-                        doc.addImage(paidStamp, "PNG", 145, termsY - 8, 28, 12);
+                        doc.addImage(paidStamp, "PNG", 140, termsY - 6, 30, 12);
                     } catch(e) {}
-                    doc.setFontSize(7);
-                    doc.text("PAID STAMP", 150, termsY);
                 } else if (currentMode === "invoice" && isPaid) {
                     doc.setFontSize(8);
                     doc.setTextColor(40, 100, 40);
@@ -699,16 +732,9 @@
                     doc.setTextColor(0,0,0);
                 }
                 
-                // Signature line (simple aesthetic)
-                doc.line(150, termsY + 24, 200, termsY + 24);
-                doc.setFontSize(6);
-                doc.text("Authorised signature", 155, termsY + 28);
-                
-                // final footer
                 doc.setFontSize(6);
                 doc.text("Salman Auto Electrician – Quality auto electrical repairs. Cash on completion.", 8, pageHeight - 6);
                 
-                // generate blob and share/download
                 const pdfBlob = doc.output("blob", { compress: true });
                 const fileSafeName = clientName.replace(/\s+/g, '_').substring(0, 20);
                 const fileName = `${currentMode === "invoice" ? "Invoice" : "Quotation"}_${fileSafeName}_${displayDate.replace(/\//g, '-')}.pdf`;
@@ -718,7 +744,6 @@
                 downloadLink.download = fileName;
                 downloadLink.click();
                 
-                // try to share if supported
                 const fileObj = new File([pdfBlob], fileName, { type: "application/pdf" });
                 if (navigator.canShare && navigator.canShare({ files: [fileObj] })) {
                     navigator.share({
@@ -734,10 +759,9 @@
         }
         
         if (imagesLoaded === 0) {
-            // manual trigger if callbacks not yet executed
             setTimeout(() => {
-                if (imagesLoaded < 2) {
-                    imagesLoaded = 2;
+                if (imagesLoaded < 3) {
+                    imagesLoaded = 3;
                     buildFinalPDF();
                 }
             }, 400);
